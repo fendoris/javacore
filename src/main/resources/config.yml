@@ -27,3 +27,8 @@ pvp-disabled-message: "You have disabled PvP."
 pvp-enabled-message: "You have enabled PvP."
 pvp-attacker-disabled-message: "You cannot hit players while PvP is disabled."
 pvp-victim-disabled-message: "That player has PvP disabled."
+
+# Death message settings
+death-message-enabled: true
+death-message-prefix: "Death:"
+

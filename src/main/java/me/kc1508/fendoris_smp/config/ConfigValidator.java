@@ -23,9 +23,11 @@ public class ConfigValidator {
         checkInt("pvp-toggle-cooldown-seconds");
         checkInt("pvp-message-cooldown-seconds");
 
-        // New keys
         checkBoolean("pvp-toggle-combat-cooldown-enabled");
         checkInt("pvp-toggle-combat-cooldown-seconds");
+
+        checkBoolean("death-message-enabled");
+        checkString("death-message-prefix");
     }
 
     private void checkBoolean(String path) {

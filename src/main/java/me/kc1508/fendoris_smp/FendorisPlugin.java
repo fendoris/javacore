@@ -2,12 +2,13 @@ package me.kc1508.fendoris_smp;
 
 import me.kc1508.fendoris_smp.commands.PvpCommand;
 import me.kc1508.fendoris_smp.commands.ReloadCommand;
+import me.kc1508.fendoris_smp.commands.PvpTabCompleter;
 import me.kc1508.fendoris_smp.config.ConfigValidator;
+import me.kc1508.fendoris_smp.listeners.PlayerDeathListener;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
 import me.kc1508.fendoris_smp.listeners.PvpListener;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
-import me.kc1508.fendoris_smp.commands.PvpTabCompleter;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -51,6 +52,7 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpCommand(this));
         Objects.requireNonNull(getCommand("pvp")).setTabCompleter(new PvpTabCompleter());
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
     }
 
     @Override
@@ -84,7 +86,6 @@ public final class FendorisPlugin extends JavaPlugin {
         return Math.min(300, Math.max(0, getConfig().getInt("pvp-message-cooldown-seconds", 15)));
     }
 
-    // New combat cooldown config options
     public boolean isPvpCombatCooldownEnabled() {
         return getConfig().getBoolean("pvp-toggle-combat-cooldown-enabled", true);
     }
