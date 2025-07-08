@@ -16,5 +16,3 @@ commands:
   pvp:
     description: Toggle PvP on or off for yourself
     usage: "/pvp"
-    permission: fendoris.pvp
-    permission-message: "§cYou don't have permission to use /pvp."

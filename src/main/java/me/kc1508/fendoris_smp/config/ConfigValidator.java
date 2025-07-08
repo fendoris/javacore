@@ -17,6 +17,15 @@ public class ConfigValidator {
         checkString("private-join-message");
         checkString("public-join-message");
         checkString("public-quit-message");
+
+        checkBoolean("pvp-toggle-system-enabled");
+        checkBoolean("pvp-toggle-cooldown-enabled");
+        checkInt("pvp-toggle-cooldown-seconds");
+        checkInt("pvp-message-cooldown-seconds");
+
+        // New keys
+        checkBoolean("pvp-toggle-combat-cooldown-enabled");
+        checkInt("pvp-toggle-combat-cooldown-seconds");
     }
 
     private void checkBoolean(String path) {
@@ -30,6 +39,19 @@ public class ConfigValidator {
         Object value = plugin.getConfig().get(path);
         if (!(value instanceof String)) {
             plugin.getLogger().warning("Invalid config value at '" + path + "': expected a string. Default will be used.");
+        }
+    }
+
+    private void checkInt(String path) {
+        Object value = plugin.getConfig().get(path);
+        if (!(value instanceof Integer)) {
+            plugin.getLogger().warning("Invalid config value at '" + path + "': expected an integer. Default will be used.");
+            return;
+        }
+
+        int intValue = (Integer) value;
+        if (intValue < 0 || intValue > 300) {
+            plugin.getLogger().warning("Config value at '" + path + "' is out of bounds (0-300). Clamping.");
         }
     }
 }

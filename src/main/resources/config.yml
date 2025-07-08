@@ -1,13 +1,29 @@
 # https://github.com/kchaney1508
+# MiniMessage format supported
 
-# Send custom public join message?
-public-join-message-enabled: true # true = replace default join message
-public-join-message: "%player% joined the game" # "null" = no message will be sent
-
-# Send custom public quit message?
-public-quit-message-enabled: true # true = replace default leave message
-public-quit-message: "%player% left the game" # "null" = no message will be sent
-
-# Send private join message?
+# Join and quit message settings
 private-join-message-enabled: true
-private-join-message: "<green>Welcome back, %player%!<newline><gray><i>Join our Discord at <gray><underlined>fendoris.com/discord</underlined>"
+public-join-message-enabled: true
+public-quit-message-enabled: true
+
+private-join-message: "Welcome %player% to the server!<newline>Custom new line."
+public-join-message: "%player% has joined the game."
+public-quit-message: "%player% has left the game."
+
+# PvP toggle system settings
+pvp-toggle-system-enabled: true
+pvp-toggle-cooldown-enabled: true
+pvp-toggle-cooldown-seconds: 30
+pvp-message-cooldown-seconds: 5
+pvp-toggle-combat-cooldown-enabled: true
+pvp-toggle-combat-cooldown-seconds: 10
+
+pvp-toggle-disabled-message: "<red>The PvP toggle system is currently disabled.</red>"
+pvp-combat-cooldown-message-less-than-1: "<yellow>You must wait less than 1 second after combat before toggling PvP.</yellow>"
+pvp-combat-cooldown-message: "<yellow>You must wait <red>%seconds%</red> more seconds after combat before toggling PvP.</yellow>"
+pvp-toggle-cooldown-message-less-than-1: "<yellow>You must wait less than 1 second to toggle PvP again.</yellow>"
+pvp-toggle-cooldown-message: "<yellow>You must wait <red>%seconds%</red> more seconds to toggle PvP again.</yellow>"
+pvp-disabled-message: "<green>You have disabled PvP.</green>"
+pvp-enabled-message: "<green>You have enabled PvP.</green>"
+pvp-attacker-disabled-message: "<red>You cannot hit players while PvP is disabled.</red>"
+pvp-victim-disabled-message: "<red>That player has PvP disabled.</red>"
