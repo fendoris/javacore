@@ -1,14 +1,14 @@
 # https://github.com/kchaney1508
-# MiniMessage format supported
+# https://webui.advntr.dev/
 
 # Join and quit message settings
 private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
 
-private-join-message: "Welcome %player% to the server!<newline>Custom new line."
-public-join-message: "%player% has joined the game."
-public-quit-message: "%player% has left the game."
+private-join-message: "Welcome %player% to the server!"
+public-join-message: "%player% connected"
+public-quit-message: "%player% disconnected"
 
 # PvP toggle system settings
 pvp-toggle-system-enabled: true
@@ -18,12 +18,12 @@ pvp-message-cooldown-seconds: 5
 pvp-toggle-combat-cooldown-enabled: true
 pvp-toggle-combat-cooldown-seconds: 10
 
-pvp-toggle-disabled-message: "<red>The PvP toggle system is currently disabled.</red>"
-pvp-combat-cooldown-message-less-than-1: "<yellow>You must wait less than 1 second after combat before toggling PvP.</yellow>"
-pvp-combat-cooldown-message: "<yellow>You must wait <red>%seconds%</red> more seconds after combat before toggling PvP.</yellow>"
-pvp-toggle-cooldown-message-less-than-1: "<yellow>You must wait less than 1 second to toggle PvP again.</yellow>"
-pvp-toggle-cooldown-message: "<yellow>You must wait <red>%seconds%</red> more seconds to toggle PvP again.</yellow>"
-pvp-disabled-message: "<green>You have disabled PvP.</green>"
-pvp-enabled-message: "<green>You have enabled PvP.</green>"
-pvp-attacker-disabled-message: "<red>You cannot hit players while PvP is disabled.</red>"
-pvp-victim-disabled-message: "<red>That player has PvP disabled.</red>"
+pvp-toggle-disabled-message: "The PvP toggle system is currently disabled on this server."
+pvp-combat-cooldown-message-less-than-1: "You must wait less than 1s after combat to toggle PvP."
+pvp-combat-cooldown-message: "You must wait %seconds%s after combat to toggle PvP."
+pvp-toggle-cooldown-message-less-than-1: "You must wait less than 1s to toggle PvP again."
+pvp-toggle-cooldown-message: "You must wait %seconds%s to toggle PvP again."
+pvp-disabled-message: "You have disabled PvP."
+pvp-enabled-message: "You have enabled PvP."
+pvp-attacker-disabled-message: "You cannot hit players while PvP is disabled."
+pvp-victim-disabled-message: "That player has PvP disabled."
