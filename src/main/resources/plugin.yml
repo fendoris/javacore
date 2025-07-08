@@ -1,0 +1,20 @@
+name: fendoris-smp
+version: '1.0-SNAPSHOT'
+main: me.kc1508.fendoris_smp.FendorisPlugin
+description: "Fendoris Project Minecraft Java Server Compiled Source Code"
+load: STARTUP
+authors: [KC1508]
+website: https://fendoris.com
+prefix: Fendoris
+api-version: '1.21'
+commands:
+  fendorisreload:
+    description: Fendoris Reload Command
+    usage: "Usage: /fendorisreload | Reloads the config file."
+    permission: fendoris.reload
+    permission-message: "§cYou don't have permission to reload the plugin."
+  pvp:
+    description: Toggle PvP on or off for yourself
+    usage: "/pvp"
+    permission: fendoris.pvp
+    permission-message: "§cYou don't have permission to use /pvp."

@@ -1,0 +1,13 @@
+# https://github.com/kchaney1508
+
+# Send custom public join message?
+public-join-message-enabled: true # true = replace default join message
+public-join-message: "%player% joined the game" # "null" = no message will be sent
+
+# Send custom public quit message?
+public-quit-message-enabled: true # true = replace default leave message
+public-quit-message: "%player% left the game" # "null" = no message will be sent
+
+# Send private join message?
+private-join-message-enabled: true
+private-join-message: "<green>Welcome back, %player%!<newline><gray><i>Join our Discord at <gray><underlined>fendoris.com/discord</underlined>"
