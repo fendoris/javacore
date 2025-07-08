@@ -76,9 +76,11 @@ public class PlayerJoinQuitListener implements Listener {
         }
 
         if (privateJoinEnabled) {
-            String rawMessage = privateJoinMessage.replace("%player%", player.getName());
-            Component privateMessage = MiniMessage.miniMessage().deserialize(rawMessage);
-            player.sendMessage(privateMessage);
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                String rawMessage = privateJoinMessage.replace("%player%", player.getName());
+                Component privateMessage = MiniMessage.miniMessage().deserialize(rawMessage);
+                player.sendMessage(privateMessage);
+            }, 1L); // 1 tick = 50ms delay
         }
     }
 
