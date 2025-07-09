@@ -8,5 +8,5 @@ Features:
 - Connect/Disconnect Messages
 - Command usage broadcasts to Admins
 
-All features are **toggleable** in the `config.yml`, generated on first server run.
+All features are **toggleable** in the [config.yml](src/main/resources/config.yml), generated on first server run.
 ### Do not use non release versions, they are unstable and have `devModeConfigReset` enabled.
