@@ -32,20 +32,19 @@ public class PvpCommand implements CommandExecutor {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command.");
+            sender.sendMessage("Only players can use this command."); // You can also move this to config if desired
             return true;
         }
 
         UUID uuid = player.getUniqueId();
 
         if (!plugin.isPvpToggleEnabled()) {
-            sendMiniMessage(player, "pvp-toggle-disabled-message", "<red>ERROR: PvP toggle system message not configured properly.</red>");
+            sendConfigMessageOrError(player, "pvp-toggle-disabled-message");
             return true;
         }
 
         long now = System.currentTimeMillis();
 
-        // PRIORITY: Combat cooldown takes precedence over general cooldown
         if (plugin.isPvpCombatCooldownEnabled()) {
             int combatCooldown = plugin.getPvpCombatCooldownSeconds();
             long lastCombat = combatCooldowns.getOrDefault(uuid, 0L);
@@ -53,9 +52,9 @@ public class PvpCommand implements CommandExecutor {
                 long millisLeft = (combatCooldown * 1000L) - (now - lastCombat);
                 long secondsLeft = millisLeft / 1000L;
                 if (secondsLeft < 1) {
-                    sendMiniMessage(player, "pvp-combat-cooldown-message-less-than-1", "<red>ERROR: PvP combat cooldown <1 second message missing in config.</red>");
+                    sendConfigMessageOrError(player, "pvp-combat-cooldown-message-less-than-1");
                 } else {
-                    sendMiniMessage(player, "pvp-combat-cooldown-message", "<red>ERROR: PvP combat cooldown message missing or invalid in config.</red>", "%seconds%", String.valueOf(secondsLeft));
+                    sendConfigMessageOrError(player, "pvp-combat-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
@@ -69,9 +68,9 @@ public class PvpCommand implements CommandExecutor {
                 long secondsLeft = millisLeft / 1000L;
 
                 if (secondsLeft < 1) {
-                    sendMiniMessage(player, "pvp-toggle-cooldown-message-less-than-1", "<red>ERROR: PvP toggle cooldown <1 second message missing in config.</red>");
+                    sendConfigMessageOrError(player, "pvp-toggle-cooldown-message-less-than-1");
                 } else {
-                    sendMiniMessage(player, "pvp-toggle-cooldown-message", "<red>ERROR: PvP toggle cooldown message missing or invalid in config.</red>", "%seconds%", String.valueOf(secondsLeft));
+                    sendConfigMessageOrError(player, "pvp-toggle-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
@@ -81,17 +80,32 @@ public class PvpCommand implements CommandExecutor {
         boolean currentlyEnabled = plugin.getPvpEnabledPlayers().contains(uuid);
         if (currentlyEnabled) {
             plugin.getPvpEnabledPlayers().remove(uuid);
-            sendMiniMessage(player, "pvp-disabled-message", "<red>ERROR: PvP disabled message missing in config.</red>");
+            sendConfigMessageOrError(player, "pvp-disabled-message");
+            plugin.broadcastToAdminsExceptSender(player.getName(),
+                    "admin-pvp-toggle-off",
+                    "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <red>off</red>]</gray>",
+                    "%player%", player.getName());
         } else {
             plugin.getPvpEnabledPlayers().add(uuid);
-            sendMiniMessage(player, "pvp-enabled-message", "<red>ERROR: PvP enabled message missing in config.</red>");
+            sendConfigMessageOrError(player, "pvp-enabled-message");
+            plugin.broadcastToAdminsExceptSender(player.getName(),
+                    "admin-pvp-toggle-on",
+                    "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>",
+                    "%player%", player.getName());
         }
-
         return true;
     }
 
-    private void sendMiniMessage(Player player, String key, String defaultMessage, String... replacements) {
-        String rawMessage = plugin.getConfig().getString(key, defaultMessage);
+    /**
+     * Sends a config message to player or an error if missing/empty.
+     */
+    private void sendConfigMessageOrError(Player player, String key, String... replacements) {
+        String rawMessage = plugin.getConfig().getString(key);
+        if (rawMessage == null || rawMessage.isBlank()) {
+            player.sendMessage("<red>ERROR: Missing or empty config message for '" + key + "'!</red>");
+            return;
+        }
+
         if (replacements.length % 2 == 0) {
             for (int i = 0; i < replacements.length; i += 2) {
                 String placeholder = replacements[i];

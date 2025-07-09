@@ -103,4 +103,29 @@ public final class FendorisPlugin extends JavaPlugin {
     public String getMessage(String key, String defaultMessage) {
         return getConfig().getString(key, defaultMessage);
     }
+
+    // Broadcast command use to admins
+    public void broadcastToAdminsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {
+        if (!getConfig().getBoolean("admin-command-logs-enabled", true)) return;
+
+        String raw = getConfig().getString(messageKey, defaultMiniMessage);
+        if (replacements.length % 2 == 0) {
+            for (int i = 0; i < replacements.length; i += 2) {
+                String placeholder = replacements[i];
+                String value = replacements[i + 1];
+                raw = raw.replace(placeholder, value);
+            }
+        }
+
+        final String message = raw;
+
+        getServer().getOnlinePlayers().forEach(player -> {
+            if (player.hasPermission("fendoris.admin") && !player.getName().equalsIgnoreCase(senderName)) {
+                player.sendMessage(miniMessage.deserialize(message));
+            }
+        });
+
+        String plain = miniMessage.stripTags(message);
+        getLogger().info("[Command Log] " + plain);
+    }
 }

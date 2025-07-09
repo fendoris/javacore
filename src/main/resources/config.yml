@@ -32,3 +32,12 @@ pvp-victim-disabled-message: "That player has PvP disabled."
 death-message-enabled: true
 death-message-prefix: "Death:"
 
+# Broadcast command use to admins
+admin-command-logs-enabled: true
+
+admin-pvp-toggle-on: "<gray><i>[%player%: toggled their PvP on]<reset>"
+admin-pvp-toggle-off: "<gray><i>[%player%: toggled their PvP off]<reset>"
+admin-reload-broadcast-message: "<gray><i>[%player%: Fendoris plugin config reloaded successfully]<reset>"
+
+# Reload command lang
+reload-success-message: "§aFendoris plugin config reloaded successfully."
