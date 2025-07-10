@@ -1,7 +1,7 @@
 name: fendoris-smp
 version: '1.0-SNAPSHOT'
 main: me.kc1508.fendoris_smp.FendorisPlugin
-description: "Fendoris Project Minecraft Java Server Compiled Source Code"
+description: "Fendoris Survival Multiplayer Server Core"
 load: STARTUP
 authors: [KC1508]
 website: https://fendoris.com
