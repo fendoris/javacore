@@ -1,4 +1,4 @@
-Source code for the Fendoris Project's Minecraft Survival Multiplayer server.
+Fendoris Survival Multiplayer Server Core
 
 Features:
 - TogglePvP
