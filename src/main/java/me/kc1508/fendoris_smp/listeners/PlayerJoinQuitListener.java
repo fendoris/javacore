@@ -3,103 +3,116 @@ package me.kc1508.fendoris_smp.listeners;
 import me.kc1508.fendoris_smp.FendorisPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerJoinQuitListener implements Listener {
 
     private final FendorisPlugin plugin;
+    private FileConfiguration config;
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     // Cached config values
-    private boolean publicJoinEnabled;
-    private String publicJoinMessage;
-
-    private boolean privateJoinEnabled;
+    private boolean privateJoinMessageEnabled;
     private String privateJoinMessage;
-
-    private boolean publicQuitEnabled;
+    private boolean publicJoinMessageEnabled;
+    private String publicJoinMessage;
+    private boolean publicQuitMessageEnabled;
     private String publicQuitMessage;
+    private boolean adminCommandLogsEnabled;
+    private boolean sessionCodeEnabled;
 
     public PlayerJoinQuitListener(FendorisPlugin plugin) {
         this.plugin = plugin;
+        this.config = plugin.getConfig();
         reloadConfigCache();
     }
 
+    /**
+     * Reloads cached config values from plugin config.yml
+     */
     public void reloadConfigCache() {
-        Object pubJoinEnabledObj = plugin.getConfig().get("public-join-message-enabled");
-        this.publicJoinEnabled = pubJoinEnabledObj instanceof Boolean && (Boolean) pubJoinEnabledObj;
+        this.config = plugin.getConfig();
 
-        Object pubJoinMsgObj = plugin.getConfig().get("public-join-message");
-        this.publicJoinMessage = (pubJoinMsgObj instanceof String) ? (String) pubJoinMsgObj : "null";
+        this.privateJoinMessageEnabled = config.getBoolean("private-join-message-enabled", true);
+        this.privateJoinMessage = config.getString("private-join-message", "");
 
-        Object privJoinEnabledObj = plugin.getConfig().get("private-join-message-enabled");
-        this.privateJoinEnabled = privJoinEnabledObj instanceof Boolean && (Boolean) privJoinEnabledObj;
+        this.publicJoinMessageEnabled = config.getBoolean("public-join-message-enabled", true);
+        this.publicJoinMessage = config.getString("public-join-message", "");
 
-        Object privJoinMsgObj = plugin.getConfig().get("private-join-message");
-        if (privJoinMsgObj instanceof String) {
-            String temp = ((String) privJoinMsgObj).trim();
-            if (temp.isEmpty()) {
-                this.privateJoinMessage = "<red>No valid config for private-join-message.";
-            } else {
-                this.privateJoinMessage = temp;
-            }
-        } else {
-            this.privateJoinMessage = "<red>No valid config for private-join-message.";
-        }
+        this.publicQuitMessageEnabled = config.getBoolean("public-quit-message-enabled", true);
+        this.publicQuitMessage = config.getString("public-quit-message", "");
 
-        Object pubQuitEnabledObj = plugin.getConfig().get("public-quit-message-enabled");
-        this.publicQuitEnabled = pubQuitEnabledObj instanceof Boolean && (Boolean) pubQuitEnabledObj;
+        this.adminCommandLogsEnabled = config.getBoolean("admin-command-logs-enabled", false);
 
-        Object pubQuitMsgObj = plugin.getConfig().get("public-quit-message");
-        this.publicQuitMessage = (pubQuitMsgObj instanceof String) ? (String) pubQuitMsgObj : "null";
+        this.sessionCodeEnabled = config.getBoolean("session-code-enabled", false);
     }
-
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        // Log players joining to the console
-        plugin.getLogger().info("\u001B[33mPlayer-Client Connected: " + player.getName() + "\u001B[0m");
-
-        if (publicJoinEnabled) {
-            if (publicJoinMessage.equalsIgnoreCase("null")) {
-                event.joinMessage(Component.empty());
-            } else {
-                String replaced = publicJoinMessage.replace("%player%", player.getName());
-                Component message = MiniMessage.miniMessage().deserialize(replaced);
-                event.joinMessage(message);
+        if (privateJoinMessageEnabled) {
+            String privateMessageRaw = privateJoinMessage
+                    .replace("%player%", player.getName())
+                    .replace("<newline>", "\n");
+            if (!privateMessageRaw.isBlank()) {
+                // Parse with MiniMessage and send Component instead of plain text
+                player.sendMessage(miniMessage.deserialize(privateMessageRaw));
             }
         }
 
-        if (privateJoinEnabled) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                String rawMessage = privateJoinMessage.replace("%player%", player.getName());
-                Component privateMessage = MiniMessage.miniMessage().deserialize(rawMessage);
-                player.sendMessage(privateMessage);
-            }, 1L); // 1 tick = 50ms delay
+        if (publicJoinMessageEnabled) {
+            String raw = publicJoinMessage.replace("%player%", player.getName());
+            if (!raw.isBlank()) {
+                event.joinMessage(miniMessage.deserialize(raw));
+            }
+        } else {
+            event.joinMessage(Component.empty());
+        }
+
+        if (adminCommandLogsEnabled) {
+            if (sessionCodeEnabled && plugin.getTabListManager() != null) {
+                String sessionCode = plugin.getTabListManager().getSessionCode(player);
+                plugin.getLogger().info(player.getName() + " client connected [Session: " + sessionCode + "]");
+            } else {
+                plugin.getLogger().info(player.getName() + " client connected");
+            }
+        }
+
+        if (plugin.getTabListManager() != null && plugin.getConfig().getBoolean("tablist-enabled", false)) {
+            plugin.getTabListManager().updateTabList(player);
         }
     }
 
+
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(org.bukkit.event.player.PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        // Log players leaving to the console
-        plugin.getLogger().info("\u001B[33mPlayer-Client Disconnected: " + player.getName() + "\u001B[0m");
+        if (publicQuitMessageEnabled) {
+            String raw = publicQuitMessage.replace("%player%", player.getName());
+            if (!raw.isBlank()) {
+                event.quitMessage(miniMessage.deserialize(raw));
+            }
+        } else {
+            event.quitMessage(Component.empty());
+        }
 
-        if (publicQuitEnabled) {
-            if (publicQuitMessage.equalsIgnoreCase("null")) {
-                event.quitMessage(Component.empty()); // explicitly remove message
+        if (adminCommandLogsEnabled) {
+            if (sessionCodeEnabled && plugin.getTabListManager() != null) {
+                String sessionCode = plugin.getTabListManager().getSessionCode(player);
+                plugin.getLogger().info(player.getName() + " disconnected [Session: " + sessionCode + "]");
             } else {
-                String replaced = publicQuitMessage.replace("%player%", player.getName());
-                Component message = MiniMessage.miniMessage().deserialize(replaced);
-                event.quitMessage(message);
+                plugin.getLogger().info(player.getName() + " disconnected");
             }
         }
-        // else: do nothing — allow default message
+
+        if (plugin.getTabListManager() != null) {
+            plugin.getTabListManager().clearSessionCode(player.getUniqueId());
+        }
     }
 }

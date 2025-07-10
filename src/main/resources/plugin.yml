@@ -9,10 +9,13 @@ prefix: Fendoris
 api-version: '1.21'
 commands:
   fendorisreload:
-    description: Fendoris Reload Command
-    usage: "Usage: /fendorisreload | Reloads the config file."
+    description: Reload Fendoris Core
+    usage: "§cUsage: /fendorisreload (Admin) (Reload Fendoris Core)"
     permission: fendoris.reload
     permission-message: "§cYou don't have permission to reload the plugin."
   pvp:
     description: Toggle PvP on or off for yourself
-    usage: "/pvp"
+    usage: "§cUsage: /pvp (Toggle PvP on or off for yourself)"
+  session:
+    description: Shows your current Session Code
+    usage: "§cUsage: /session (Shows your current Session Code)"

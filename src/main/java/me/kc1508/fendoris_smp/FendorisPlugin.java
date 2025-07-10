@@ -3,10 +3,14 @@ package me.kc1508.fendoris_smp;
 import me.kc1508.fendoris_smp.commands.PvpCommand;
 import me.kc1508.fendoris_smp.commands.ReloadCommand;
 import me.kc1508.fendoris_smp.commands.PvpTabCompleter;
+import me.kc1508.fendoris_smp.commands.SessionTabCompleter;
+import me.kc1508.fendoris_smp.commands.SessionCommand;
 import me.kc1508.fendoris_smp.config.ConfigValidator;
 import me.kc1508.fendoris_smp.listeners.PlayerDeathListener;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
 import me.kc1508.fendoris_smp.listeners.PvpListener;
+import me.kc1508.fendoris_smp.tablist.TabListManager;
+
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,12 +26,11 @@ public final class FendorisPlugin extends JavaPlugin {
     public static final String ANSI_RESET = "\u001B[0m";
 
     private PlayerJoinQuitListener playerListener;
-
     private static final boolean devModeConfigReset = true;
 
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
-
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private TabListManager tabListManager; // ✅ Added field
 
     @Override
     public void onEnable() {
@@ -51,16 +54,33 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener));
         Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpCommand(this));
         Objects.requireNonNull(getCommand("pvp")).setTabCompleter(new PvpTabCompleter());
+        Objects.requireNonNull(getCommand("session")).setExecutor(new SessionCommand(this));
+        Objects.requireNonNull(getCommand("session")).setTabCompleter(new SessionTabCompleter());
         getServer().getPluginManager().registerEvents(new PvpListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+
+        tabListManager = new TabListManager(this);
+        if (getConfig().getBoolean("tablist-enabled", false)) {
+            tabListManager.start();
+        }
+
     }
 
     @Override
     public void onDisable() {
         getLogger().info(ANSI_RED + "Fendoris SMP plugin is stopping..." + ANSI_RESET);
+
+        if (tabListManager != null) {
+            tabListManager.stop();
+        }
     }
 
-    @SuppressWarnings("unused")
+    // ✅ Provide access to the TabListManager
+    public TabListManager getTabListManager() {
+        return tabListManager;
+    }
+
+@SuppressWarnings("unused")
     public PlayerJoinQuitListener getPlayerListener() {
         return playerListener;
     }
@@ -104,7 +124,6 @@ public final class FendorisPlugin extends JavaPlugin {
         return getConfig().getString(key, defaultMessage);
     }
 
-    // Broadcast command use to admins
     public void broadcastToAdminsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {
         if (!getConfig().getBoolean("admin-command-logs-enabled", true)) return;
 

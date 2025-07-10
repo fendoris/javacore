@@ -36,6 +36,11 @@ public class PvpCommand implements CommandExecutor {
             return true;
         }
 
+        if (args.length > 0) {
+            sender.sendMessage("§cUsage: /pvp (Toggle PvP on or off for yourself)");
+            return true;
+        }
+
         UUID uuid = player.getUniqueId();
 
         if (!plugin.isPvpToggleEnabled()) {

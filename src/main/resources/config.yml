@@ -6,9 +6,9 @@ private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
 
-private-join-message: "Welcome %player% to the server!"
-public-join-message: "%player% connected"
-public-quit-message: "%player% disconnected"
+private-join-message: "<red>Welcome %player% to the server!<reset>"
+public-join-message: "<green>%player% connected<reset>"
+public-quit-message: "<green>%player% disconnected<reset>"
 
 # PvP toggle system settings
 pvp-toggle-system-enabled: true
@@ -18,19 +18,19 @@ pvp-message-cooldown-seconds: 5
 pvp-toggle-combat-cooldown-enabled: true
 pvp-toggle-combat-cooldown-seconds: 10
 
-pvp-toggle-disabled-message: "The PvP toggle system is currently disabled on this server."
-pvp-combat-cooldown-message-less-than-1: "You must wait less than 1s after combat to toggle PvP."
-pvp-combat-cooldown-message: "You must wait %seconds%s after combat to toggle PvP."
-pvp-toggle-cooldown-message-less-than-1: "You must wait less than 1s to toggle PvP again."
-pvp-toggle-cooldown-message: "You must wait %seconds%s to toggle PvP again."
-pvp-disabled-message: "You have disabled PvP."
-pvp-enabled-message: "You have enabled PvP."
-pvp-attacker-disabled-message: "You cannot hit players while PvP is disabled."
-pvp-victim-disabled-message: "That player has PvP disabled."
+pvp-toggle-disabled-message: "<red>The PvP toggle system is currently disabled on this server.<reset>"
+pvp-combat-cooldown-message-less-than-1: "<red>You must wait less than 1s after combat to toggle PvP.<reset>"
+pvp-combat-cooldown-message: "<red>You must wait %seconds%s after combat to toggle PvP.<reset>"
+pvp-toggle-cooldown-message-less-than-1: "<red>You must wait less than 1s to toggle PvP again.<reset>"
+pvp-toggle-cooldown-message: "<red>You must wait %seconds%s to toggle PvP again.<reset>"
+pvp-disabled-message: "<red>You have disabled PvP.<reset>"
+pvp-enabled-message: "<red>You have enabled PvP.<reset>"
+pvp-attacker-disabled-message: "<red>You cannot hit players while PvP is disabled.<reset>"
+pvp-victim-disabled-message: "<red>That player has PvP disabled.<reset>"
 
 # Death message settings
 death-message-enabled: true
-death-message-prefix: "Death:"
+death-message-prefix: "<i>Death:"
 
 # Broadcast command use to admins
 admin-command-logs-enabled: true
@@ -40,4 +40,36 @@ admin-pvp-toggle-off: "<gray><i>[%player%: toggled their PvP off]<reset>"
 admin-reload-broadcast-message: "<gray><i>[%player%: Fendoris plugin config reloaded successfully]<reset>"
 
 # Reload command lang
-reload-success-message: "§aFendoris plugin config reloaded successfully."
+reload-success-message: "<red>Fendoris plugin config reloaded successfully.<reset>"
+
+# Tablist settings
+
+# Number of spaces to pad on left and right of each header/footer line
+tablist-padding-spaces: 2
+
+tablist-enabled: true # Restart suggested
+tablist-update-interval-seconds: 3
+
+# Your header/footer MiniMessage strings here, e.g.:
+tablist-header: "<newline><gold><b>Fendoris</b></gold> <dark_gray>/</dark_gray> SMP<newline>%online%<newline>"
+tablist-footer: "<newline><yellow>Ping: %ping% <newline><yellow>Your Session Code: %session_code%<newline>"
+
+online-count-substitutions:
+  1: "One Online Player"
+  2: "Two Online Players"
+  3: "Three Online Players"
+  4: "Four Online Players"
+  5: "Five Online Players"
+  6: "Six Online Players"
+  7: "Seven Online Players"
+  8: "Eight Online Players"
+  9: "Nine Online Players"
+
+# Set to -1 or 0 to disable testing override, otherwise use a positive number
+tablist-testing-online-count: -1
+
+session-code-enabled: true
+session-code-length: 6  # 4-32 & Restart suggested
+
+# Session code
+session-code-message: "<red>Your session code is %session_code%.<reset>"
