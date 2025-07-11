@@ -10,7 +10,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class PvpListener implements Listener {
@@ -18,22 +17,20 @@ public class PvpListener implements Listener {
     private final FendorisPlugin plugin;
     private final MiniMessage miniMessage;
 
-    // Cooldown maps for attacker and victim PvP disabled messages
     private final Map<UUID, Long> attackerMessageCooldowns = new HashMap<>();
     private final Map<UUID, Long> victimMessageCooldowns = new HashMap<>();
 
-    // Reference to PvpCommand to update combat timestamps
     private final PvpCommand pvpCommand;
 
-    public PvpListener(FendorisPlugin plugin) {
+    public PvpListener(FendorisPlugin plugin, PvpCommand pvpCommand) {
         this.plugin = plugin;
+        this.pvpCommand = pvpCommand;
         this.miniMessage = MiniMessage.miniMessage();
-        // Get the PvpCommand instance from plugin commands (assuming registered in FendorisPlugin)
-        this.pvpCommand = (PvpCommand) Objects.requireNonNull(plugin.getServer().getPluginCommand("pvp")).getExecutor();
     }
 
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
+        // Check if PvP toggle system is enabled; if not, do nothing.
         if (!plugin.isPvpToggleEnabled()) return;
 
         if (!(event.getEntity() instanceof Player victim) || !(event.getDamager() instanceof Player attacker)) return;
@@ -57,7 +54,7 @@ public class PvpListener implements Listener {
                             "<red>ERROR: PvP attacker disabled message missing in config.</red>");
                     attackerMessageCooldowns.put(attackerId, now);
                 }
-                return; // Priority: attacker PvP disabled message only
+                return; // Prioritize attacker message only
             }
 
             long lastMessage = victimMessageCooldowns.getOrDefault(victimId, 0L);
@@ -69,7 +66,7 @@ public class PvpListener implements Listener {
             return;
         }
 
-        // If both allow PvP, update combat cooldown timestamps for both
+        // Both allow PvP - update combat cooldown timestamps
         if (plugin.isPvpCombatCooldownEnabled()) {
             pvpCommand.updateCombatTimestamp(attackerId);
             pvpCommand.updateCombatTimestamp(victimId);

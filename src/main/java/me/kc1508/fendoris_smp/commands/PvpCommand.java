@@ -24,15 +24,15 @@ public class PvpCommand implements CommandExecutor {
         this.miniMessage = MiniMessage.miniMessage();
     }
 
-    // Method for PvpListener to update combat cooldown timestamp for a player
     public void updateCombatTimestamp(UUID playerUuid) {
         combatCooldowns.put(playerUuid, System.currentTimeMillis());
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
+                             @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command."); // You can also move this to config if desired
+            sender.sendMessage("Only players can use this command.");
             return true;
         }
 
@@ -69,9 +69,8 @@ public class PvpCommand implements CommandExecutor {
             int cooldown = plugin.getPvpCooldownSeconds();
             long lastUsed = toggleCooldowns.getOrDefault(uuid, 0L);
             if (now - lastUsed < cooldown * 1000L) {
-                long millisLeft = ((cooldown * 1000L) - (now - lastUsed));
+                long millisLeft = (cooldown * 1000L) - (now - lastUsed);
                 long secondsLeft = millisLeft / 1000L;
-
                 if (secondsLeft < 1) {
                     sendConfigMessageOrError(player, "pvp-toggle-cooldown-message-less-than-1");
                 } else {
@@ -101,9 +100,6 @@ public class PvpCommand implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Sends a config message to player or an error if missing/empty.
-     */
     private void sendConfigMessageOrError(Player player, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
@@ -115,9 +111,7 @@ public class PvpCommand implements CommandExecutor {
             for (int i = 0; i < replacements.length; i += 2) {
                 String placeholder = replacements[i];
                 String replacement = replacements[i + 1];
-                if (rawMessage.contains(placeholder)) {
-                    rawMessage = rawMessage.replace(placeholder, replacement);
-                }
+                rawMessage = rawMessage.replace(placeholder, replacement);
             }
         }
         player.sendMessage(miniMessage.deserialize(rawMessage));

@@ -3,9 +3,10 @@ package me.kc1508.fendoris_smp;
 import me.kc1508.fendoris_smp.commands.PvpCommand;
 import me.kc1508.fendoris_smp.commands.ReloadCommand;
 import me.kc1508.fendoris_smp.commands.PvpTabCompleter;
-import me.kc1508.fendoris_smp.commands.SessionTabCompleter;
 import me.kc1508.fendoris_smp.commands.SessionCommand;
+import me.kc1508.fendoris_smp.commands.SessionTabCompleter;
 import me.kc1508.fendoris_smp.config.ConfigValidator;
+import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
 import me.kc1508.fendoris_smp.listeners.PlayerDeathListener;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
 import me.kc1508.fendoris_smp.listeners.PvpListener;
@@ -26,11 +27,12 @@ public final class FendorisPlugin extends JavaPlugin {
     public static final String ANSI_RESET = "\u001B[0m";
 
     private PlayerJoinQuitListener playerListener;
+    private AllowedCommandListener allowedCommandListener;
     private static final boolean devModeConfigReset = true;
 
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
-    private TabListManager tabListManager; // ✅ Added field
+    private TabListManager tabListManager;
 
     @Override
     public void onEnable() {
@@ -51,38 +53,41 @@ public final class FendorisPlugin extends JavaPlugin {
         playerListener = new PlayerJoinQuitListener(this);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
-        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener));
-        Objects.requireNonNull(getCommand("pvp")).setExecutor(new PvpCommand(this));
+        allowedCommandListener = new AllowedCommandListener(this);
+        getServer().getPluginManager().registerEvents(allowedCommandListener, this);
+        allowedCommandListener.reloadBlockedCommands();
+
+        PvpCommand pvpCommand = new PvpCommand(this);
+        Objects.requireNonNull(getCommand("pvp")).setExecutor(pvpCommand);
         Objects.requireNonNull(getCommand("pvp")).setTabCompleter(new PvpTabCompleter());
+
+        getServer().getPluginManager().registerEvents(new PvpListener(this, pvpCommand), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+
+        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener, allowedCommandListener));
         Objects.requireNonNull(getCommand("session")).setExecutor(new SessionCommand(this));
         Objects.requireNonNull(getCommand("session")).setTabCompleter(new SessionTabCompleter());
-        getServer().getPluginManager().registerEvents(new PvpListener(this), this);
-        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
 
         tabListManager = new TabListManager(this);
         if (getConfig().getBoolean("tablist-enabled", false)) {
             tabListManager.start();
         }
-
     }
 
     @Override
     public void onDisable() {
         getLogger().info(ANSI_RED + "Fendoris SMP plugin is stopping..." + ANSI_RESET);
-
-        if (tabListManager != null) {
-            tabListManager.stop();
-        }
+        if (tabListManager != null) tabListManager.stop();
     }
 
-    // ✅ Provide access to the TabListManager
-    public TabListManager getTabListManager() {
-        return tabListManager;
-    }
-
-@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     public PlayerJoinQuitListener getPlayerListener() {
         return playerListener;
+    }
+
+    @SuppressWarnings("unused")
+    public AllowedCommandListener getBlockedCommandListener() {
+        return allowedCommandListener;
     }
 
     public Set<UUID> getPvpEnabledPlayers() {
@@ -114,14 +119,17 @@ public final class FendorisPlugin extends JavaPlugin {
         return Math.min(300, Math.max(0, getConfig().getInt("pvp-toggle-combat-cooldown-seconds", 10)));
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isCommandWhitelistEnabled() {
+        return getConfig().getBoolean("command-whitelist-enabled", true);
+    }
+
     public MiniMessage getMiniMessage() {
         return miniMessage;
     }
 
-    @SuppressWarnings("unused")
-    public String getMessage(String key, String defaultMessage) {
-        return getConfig().getString(key, defaultMessage);
+    public TabListManager getTabListManager() {
+        return tabListManager;
     }
 
     public void broadcastToAdminsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {

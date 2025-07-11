@@ -1,7 +1,10 @@
 # https://github.com/kchaney1508
 # https://webui.advntr.dev/
 
-# Join and quit message settings
+# Other: Reload Command Lang
+reload-success-message: "<red>Fendoris plugin config reloaded successfully.<reset>"
+
+# System: Welcome / Join / Quit
 private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
@@ -10,7 +13,7 @@ private-join-message: "<red>Welcome %player% to the server!<reset>"
 public-join-message: "<green>%player% connected<reset>"
 public-quit-message: "<green>%player% disconnected<reset>"
 
-# PvP toggle system settings
+# System: PvP Toggle
 pvp-toggle-system-enabled: true
 pvp-toggle-cooldown-enabled: true
 pvp-toggle-cooldown-seconds: 30
@@ -28,29 +31,22 @@ pvp-enabled-message: "<red>You have enabled PvP.<reset>"
 pvp-attacker-disabled-message: "<red>You cannot hit players while PvP is disabled.<reset>"
 pvp-victim-disabled-message: "<red>That player has PvP disabled.<reset>"
 
-# Death message settings
+# System: Death Messages
 death-message-enabled: true
 death-message-prefix: "<i>Death:"
 
-# Broadcast command use to admins
+# System: Broadcast Command use to Admins
 admin-command-logs-enabled: true
 
 admin-pvp-toggle-on: "<gray><i>[%player%: toggled their PvP on]<reset>"
 admin-pvp-toggle-off: "<gray><i>[%player%: toggled their PvP off]<reset>"
 admin-reload-broadcast-message: "<gray><i>[%player%: Fendoris plugin config reloaded successfully]<reset>"
 
-# Reload command lang
-reload-success-message: "<red>Fendoris plugin config reloaded successfully.<reset>"
-
-# Tablist settings
-
-# Number of spaces to pad on left and right of each header/footer line
-tablist-padding-spaces: 2
-
+# System: Tablist
 tablist-enabled: true # Restart suggested
-tablist-update-interval-seconds: 3
+tablist-update-interval-seconds: 3 # Suggested for Performance
+tablist-padding-spaces: 2 # Num of padding spaces left and right of each header/footer line
 
-# Your header/footer MiniMessage strings here, e.g.:
 tablist-header: "<newline><gold><b>Fendoris</b></gold> <dark_gray>/</dark_gray> SMP<newline>%online%<newline>"
 tablist-footer: "<newline><yellow>Ping: %ping% <newline><yellow>Your Session Code: %session_code%<newline>"
 
@@ -65,11 +61,21 @@ online-count-substitutions:
   8: "Eight Online Players"
   9: "Nine Online Players"
 
-# Set to -1 or 0 to disable testing override, otherwise use a positive number
-tablist-testing-online-count: -1
+tablist-testing-online-count: -1 # -1 or 0 to disable testing override, otherwise use a positive number
 
+# System: Session Code
 session-code-enabled: true
 session-code-length: 6  # 4-32 & Restart suggested
 
-# Session code
 session-code-message: "<red>Your session code is %session_code%.<reset>"
+
+# System: Command Whitelist
+command-whitelist-enabled: true
+disallowed-command-message: "<red>Unknown or incomplete command.<reset>"
+
+allowed-commands:
+  - pvp
+  - session
+  - fendorisreload
+
+# End of Config

@@ -2,6 +2,7 @@ package me.kc1508.fendoris_smp.commands;
 
 import me.kc1508.fendoris_smp.FendorisPlugin;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
+import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
@@ -14,11 +15,13 @@ public class ReloadCommand implements CommandExecutor {
 
     private final FendorisPlugin plugin;
     private final PlayerJoinQuitListener listener;
+    private final AllowedCommandListener allowedCommandListener;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener) {
+    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener, AllowedCommandListener allowedCommandListener) {
         this.plugin = plugin;
         this.listener = listener;
+        this.allowedCommandListener = allowedCommandListener;
     }
 
     @Override
@@ -30,6 +33,8 @@ public class ReloadCommand implements CommandExecutor {
 
         plugin.reloadConfig();
         listener.reloadConfigCache();
+
+        allowedCommandListener.reloadBlockedCommands();
 
         if (plugin.getTabListManager() != null) {
             plugin.getTabListManager().stop();
@@ -45,7 +50,7 @@ public class ReloadCommand implements CommandExecutor {
 
         String broadcastMessage = plugin.getConfig().getString("admin-reload-broadcast-message");
         if (broadcastMessage == null || broadcastMessage.isBlank()) {
-            sendConfigMessageOrError(sender, "admin-reload-broadcast-message"); // Will show error if missing
+            sendConfigMessageOrError(sender, "admin-reload-broadcast-message");
         } else {
             plugin.broadcastToAdminsExceptSender(senderName,
                     "admin-reload-broadcast-message",
@@ -56,10 +61,6 @@ public class ReloadCommand implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Sends a MiniMessage-parsed config message or an error if missing/empty.
-     * Supports placeholders in key-value pairs: e.g. sendConfigMessageOrError(sender, "key", "%player%", "Steve");
-     */
     private void sendConfigMessageOrError(CommandSender sender, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
@@ -81,7 +82,6 @@ public class ReloadCommand implements CommandExecutor {
         if (sender instanceof Player p) {
             p.sendMessage(messageComponent);
         } else {
-            // Console or other senders - send raw plain text (MiniMessage deserialization may include colors)
             sender.sendMessage(messageComponent.toString());
         }
     }
