@@ -47,8 +47,8 @@ tablist-enabled: true # Restart suggested
 tablist-update-interval-seconds: 3 # Suggested for Performance
 tablist-padding-spaces: 2 # Num of padding spaces left and right of each header/footer line
 
-tablist-header: "<newline><gold><b>Fendoris</b></gold> <dark_gray>/</dark_gray> SMP<newline>%online%<newline>"
-tablist-footer: "<newline><yellow>Ping: %ping% <newline><yellow>Your Session Code: %session_code%<newline>"
+tablist-header: "<newline><gold><b>Fendoris</b></gold><reset><newline>"
+tablist-footer: "<newline><gray>%online%</gray><reset><newline><gray>%ping%ms Latency</gray> <dark_gray>/</dark_gray> <gray>%tps% TPS</gray><reset><newline>"
 
 online-count-substitutions:
   1: "One Online Player"
@@ -67,7 +67,7 @@ tablist-testing-online-count: -1 # -1 or 0 to disable testing override, otherwis
 session-code-enabled: true
 session-code-length: 6  # 4-32 & Restart suggested
 
-session-code-message: "<red>Your session code is %session_code%.<reset>"
+session-code-message: "<red>Your session code is <red><bold>%session_code%<reset><red>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Admin may ask for for this.<reset>"
 
 # System: Command Whitelist
 command-whitelist-enabled: true
