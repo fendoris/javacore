@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerJoinQuitListener implements Listener {
 
@@ -55,12 +56,17 @@ public class PlayerJoinQuitListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
+        @SuppressWarnings("UnstableApiUsage")
+        // I mute this API warning since Paper will standard in the future.
+        String version = plugin.getPluginMeta().getVersion();
+
         if (privateJoinMessageEnabled) {
             String privateMessageRaw = privateJoinMessage
                     .replace("%player%", player.getName())
+                    .replace("%version%", version)
                     .replace("<newline>", "\n");
+
             if (!privateMessageRaw.isBlank()) {
-                // Parse with MiniMessage and send Component instead of plain text
                 player.sendMessage(miniMessage.deserialize(privateMessageRaw));
             }
         }
@@ -88,9 +94,8 @@ public class PlayerJoinQuitListener implements Listener {
         }
     }
 
-
     @EventHandler
-    public void onPlayerQuit(org.bukkit.event.player.PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
         if (publicQuitMessageEnabled) {

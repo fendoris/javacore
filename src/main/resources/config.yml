@@ -9,7 +9,7 @@ private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
 
-private-join-message: "<red>Welcome %player% to the server!<reset>"
+private-join-message: "<newline><white>Hey, %player%! Looks like you successfully connected. Hover <hover:show_text:'fendoris.com/discord'><click:open_url:'https://fendoris.com/discord'><b>here</b></click></hover> for our Discord.<reset><newline><newline>You are currently playing on v<hover:show_text:'fendoris.com/javacore'><click:open_url:'https://fendoris.com/javacore'>%version%</click></hover>.<reset><newline>"
 public-join-message: "<green>%player% connected<reset>"
 public-quit-message: "<green>%player% disconnected<reset>"
 
