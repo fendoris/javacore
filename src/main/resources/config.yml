@@ -2,16 +2,20 @@
 # https://webui.advntr.dev/
 
 # Other: Reload Command Lang
-reload-success-message: "<red>Fendoris plugin config reloaded successfully.<reset>"
+reload-success-message: "<newline><red>Admin: Fendoris plugin config reloaded successfully.<reset><newline>"
+
+# System: MOTD
+server-list-motd: "<reset>                      <gold><bold>Fendoris</bold></gold><reset><newline><reset>               <gray>Currently Whitelisted</gray><reset>"
+server-list-ping-logs: true # Logs server list ping requests to console
 
 # System: Welcome / Join / Quit
 private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
 
-private-join-message: "<newline><white>Hey, %player%! Looks like you successfully connected. Hover <hover:show_text:'fendoris.com/discord'><click:open_url:'https://fendoris.com/discord'><b>here</b></click></hover> for our Discord.<reset><newline><newline>You are currently playing on v<hover:show_text:'fendoris.com/javacore'><click:open_url:'https://fendoris.com/javacore'>%version%</click></hover>.<reset><newline>"
-public-join-message: "<green>%player% connected<reset>"
-public-quit-message: "<green>%player% disconnected<reset>"
+private-join-message: "<newline><color:#38aa56>Hey, %player%! Looks like you successfully connected. Please be mindful we're still in development and you may encounter server bugs. Hover <hover:show_text:'<u>fendoris.com/discord</u>'><click:open_url:'https://fendoris.com/discord'><b>here</b></click></hover> for our Discord.</color><reset> <newline><newline><gray>You are currently playing on <hover:show_text:'<u>fendoris.com/javacore</u>'><click:open_url:'https://fendoris.com/javacore'>v%version%</click></hover>.</gray><reset><newline>"
+public-join-message: "<gray>%player% Connected</gray><reset>"
+public-quit-message: "<gray>%player% Disconnected</gray><reset>"
 
 # System: PvP Toggle
 pvp-toggle-system-enabled: true
@@ -67,7 +71,7 @@ tablist-testing-online-count: -1 # -1 or 0 to disable testing override, otherwis
 session-code-enabled: true
 session-code-length: 6  # 4-32 & Restart suggested
 
-session-code-message: "<red>Your session code is <red><bold>%session_code%<reset><red>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Admin may ask for for this.<reset>"
+session-code-message: "<reset><newline><reset><red>Your session code is <red><bold>%session_code%<reset><red>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Admin may ask for for this.<reset><reset><newline><reset>"
 
 # System: Command Whitelist
 command-whitelist-enabled: true

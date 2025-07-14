@@ -3,6 +3,7 @@ package me.kc1508.fendoris_smp.commands;
 import me.kc1508.fendoris_smp.FendorisPlugin;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
 import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
+import me.kc1508.fendoris_smp.listeners.ServerPingListener;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
@@ -16,12 +17,14 @@ public class ReloadCommand implements CommandExecutor {
     private final FendorisPlugin plugin;
     private final PlayerJoinQuitListener listener;
     private final AllowedCommandListener allowedCommandListener;
+    private final ServerPingListener serverPingListener;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener, AllowedCommandListener allowedCommandListener) {
+    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener, AllowedCommandListener allowedCommandListener, ServerPingListener serverPingListener) {
         this.plugin = plugin;
         this.listener = listener;
         this.allowedCommandListener = allowedCommandListener;
+        this.serverPingListener = serverPingListener;
     }
 
     @Override
@@ -33,8 +36,8 @@ public class ReloadCommand implements CommandExecutor {
 
         plugin.reloadConfig();
         listener.reloadConfigCache();
-
         allowedCommandListener.reloadBlockedCommands();
+        serverPingListener.reload();
 
         if (plugin.getTabListManager() != null) {
             plugin.getTabListManager().stop();

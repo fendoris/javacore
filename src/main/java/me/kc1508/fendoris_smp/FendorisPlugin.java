@@ -9,6 +9,7 @@ import me.kc1508.fendoris_smp.config.ConfigValidator;
 import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
 import me.kc1508.fendoris_smp.listeners.PlayerDeathListener;
 import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
+import me.kc1508.fendoris_smp.listeners.ServerPingListener;
 import me.kc1508.fendoris_smp.listeners.PvpListener;
 import me.kc1508.fendoris_smp.tablist.TabListManager;
 
@@ -28,6 +29,8 @@ public final class FendorisPlugin extends JavaPlugin {
 
     private PlayerJoinQuitListener playerListener;
     private AllowedCommandListener allowedCommandListener;
+    private ServerPingListener serverPingListener;  // Added reference here
+
     private static final boolean devModeConfigReset = true;
 
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
@@ -64,7 +67,13 @@ public final class FendorisPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PvpListener(this, pvpCommand), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
 
-        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener, allowedCommandListener));
+        serverPingListener = new ServerPingListener(this); // instantiate and store reference
+        getServer().getPluginManager().registerEvents(serverPingListener, this);
+
+        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(
+                new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener)
+        );
+
         Objects.requireNonNull(getCommand("session")).setExecutor(new SessionCommand(this));
         Objects.requireNonNull(getCommand("session")).setTabCompleter(new SessionTabCompleter());
 
@@ -88,6 +97,11 @@ public final class FendorisPlugin extends JavaPlugin {
     @SuppressWarnings("unused")
     public AllowedCommandListener getBlockedCommandListener() {
         return allowedCommandListener;
+    }
+
+    @SuppressWarnings("unused")
+    public ServerPingListener getServerPingListener() {
+        return serverPingListener;
     }
 
     public Set<UUID> getPvpEnabledPlayers() {
