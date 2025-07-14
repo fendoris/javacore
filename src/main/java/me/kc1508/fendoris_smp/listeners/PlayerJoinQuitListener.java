@@ -23,6 +23,8 @@ public class PlayerJoinQuitListener implements Listener {
     private String publicJoinMessage;
     private boolean publicQuitMessageEnabled;
     private String publicQuitMessage;
+    private String publicOperatorJoinMessage;
+    private String publicOperatorQuitMessage;
     private boolean adminCommandLogsEnabled;
     private boolean sessionCodeEnabled;
 
@@ -47,8 +49,10 @@ public class PlayerJoinQuitListener implements Listener {
         this.publicQuitMessageEnabled = config.getBoolean("public-quit-message-enabled", true);
         this.publicQuitMessage = config.getString("public-quit-message", "");
 
-        this.adminCommandLogsEnabled = config.getBoolean("admin-command-logs-enabled", false);
+        this.publicOperatorJoinMessage = config.getString("public-operator-join-message", "");
+        this.publicOperatorQuitMessage = config.getString("public-operator-quit-message", "");
 
+        this.adminCommandLogsEnabled = config.getBoolean("admin-command-logs-enabled", false);
         this.sessionCodeEnabled = config.getBoolean("session-code-enabled", false);
     }
 
@@ -57,7 +61,6 @@ public class PlayerJoinQuitListener implements Listener {
         Player player = event.getPlayer();
 
         @SuppressWarnings("UnstableApiUsage")
-        // I mute this API warning since Paper will standard in the future.
         String version = plugin.getPluginMeta().getVersion();
 
         if (privateJoinMessageEnabled) {
@@ -72,7 +75,13 @@ public class PlayerJoinQuitListener implements Listener {
         }
 
         if (publicJoinMessageEnabled) {
-            String raw = publicJoinMessage.replace("%player%", player.getName());
+            String raw;
+            if (player.isOp() && !publicOperatorJoinMessage.isBlank()) {
+                raw = publicOperatorJoinMessage.replace("%player%", player.getName());
+            } else {
+                raw = publicJoinMessage.replace("%player%", player.getName());
+            }
+
             if (!raw.isBlank()) {
                 event.joinMessage(miniMessage.deserialize(raw));
             }
@@ -90,9 +99,7 @@ public class PlayerJoinQuitListener implements Listener {
         }
 
         if (plugin.getTabListManager() != null && plugin.getConfig().getBoolean("tablist-enabled", false)) {
-            // Update tablist entries for this player
             plugin.getTabListManager().updateTabList(player);
-            // New: assign player to admin/default team based on permissions/op
             plugin.getTabListManager().assignPlayerToTeam(player);
         }
     }
@@ -102,7 +109,13 @@ public class PlayerJoinQuitListener implements Listener {
         Player player = event.getPlayer();
 
         if (publicQuitMessageEnabled) {
-            String raw = publicQuitMessage.replace("%player%", player.getName());
+            String raw;
+            if (player.isOp() && !publicOperatorQuitMessage.isBlank()) {
+                raw = publicOperatorQuitMessage.replace("%player%", player.getName());
+            } else {
+                raw = publicQuitMessage.replace("%player%", player.getName());
+            }
+
             if (!raw.isBlank()) {
                 event.quitMessage(miniMessage.deserialize(raw));
             }

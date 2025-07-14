@@ -14,8 +14,12 @@ public-join-message-enabled: true
 public-quit-message-enabled: true
 
 private-join-message: "<newline><color:#38aa56>Hey, %player%! Looks like you successfully connected. Please be mindful we're still in development and you may encounter server bugs. Hover <hover:show_text:'<u>fendoris.com/discord</u>'><click:open_url:'https://fendoris.com/discord'><b>here</b></click></hover> for our Discord.</color><reset> <newline><newline><gray>You are currently playing on <hover:show_text:'<u>fendoris.com/javacore</u>'><click:open_url:'https://fendoris.com/javacore'>v%version%</click></hover>.</gray><reset><newline>"
-public-join-message: "<gray>%player% Connected</gray><reset>"
-public-quit-message: "<gray>%player% Disconnected</gray><reset>"
+
+public-join-message: "<gray>%player% connected</gray><reset>"
+public-quit-message: "<gray>%player% disconnected</gray><reset>"
+
+public-operator-join-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>connected</gray><reset>"
+public-operator-quit-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>disconnected</gray><reset>"
 
 # System: PvP Toggle
 pvp-toggle-system-enabled: true
