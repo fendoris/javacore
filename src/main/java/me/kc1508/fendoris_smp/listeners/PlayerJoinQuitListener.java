@@ -90,7 +90,10 @@ public class PlayerJoinQuitListener implements Listener {
         }
 
         if (plugin.getTabListManager() != null && plugin.getConfig().getBoolean("tablist-enabled", false)) {
+            // Update tablist entries for this player
             plugin.getTabListManager().updateTabList(player);
+            // New: assign player to admin/default team based on permissions/op
+            plugin.getTabListManager().assignPlayerToTeam(player);
         }
     }
 

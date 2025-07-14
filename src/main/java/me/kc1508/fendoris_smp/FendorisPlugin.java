@@ -29,7 +29,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
     private PlayerJoinQuitListener playerListener;
     private AllowedCommandListener allowedCommandListener;
-    private ServerPingListener serverPingListener;  // Added reference here
+    private ServerPingListener serverPingListener;
 
     private static final boolean devModeConfigReset = true;
 
@@ -67,7 +67,7 @@ public final class FendorisPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PvpListener(this, pvpCommand), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
 
-        serverPingListener = new ServerPingListener(this); // instantiate and store reference
+        serverPingListener = new ServerPingListener(this);
         getServer().getPluginManager().registerEvents(serverPingListener, this);
 
         Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(
@@ -78,6 +78,10 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("session")).setTabCompleter(new SessionTabCompleter());
 
         tabListManager = new TabListManager(this);
+
+        // Move ensureTeamsExist() call here, AFTER TabListManager is instantiated
+        tabListManager.ensureTeamsExist();
+
         if (getConfig().getBoolean("tablist-enabled", false)) {
             tabListManager.start();
         }

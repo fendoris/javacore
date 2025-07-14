@@ -40,8 +40,12 @@ public class ReloadCommand implements CommandExecutor {
         serverPingListener.reload();
 
         if (plugin.getTabListManager() != null) {
+            // Ensure teams exist on reload before restarting tablist
+            plugin.getTabListManager().ensureTeamsExist();
+
             plugin.getTabListManager().stop();
             plugin.getTabListManager().reloadConfigSettings();
+
             if (plugin.getConfig().getBoolean("tablist-enabled", false)) {
                 plugin.getTabListManager().start();
             }

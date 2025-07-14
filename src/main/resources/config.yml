@@ -54,6 +54,8 @@ tablist-padding-spaces: 2 # Num of padding spaces left and right of each header/
 tablist-header: "<newline><gold><b>Fendoris</b></gold><reset><newline>"
 tablist-footer: "<newline><gray>%online%</gray><reset><newline><gray>%ping%ms Latency</gray> <dark_gray>/</dark_gray> <gray>%tps% TPS</gray><reset><newline>"
 
+tab-operator-color: red # black, dark_blue, dark_green, dark_aqua, dark_red, dark_purple, gold, gray, dark_gray, blue, green, aqua, red, light_purple, yellow, white
+
 online-count-substitutions:
   1: "One Online Player"
   2: "Two Online Players"

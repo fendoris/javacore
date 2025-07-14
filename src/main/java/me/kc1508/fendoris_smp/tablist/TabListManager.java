@@ -7,11 +7,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class TabListManager {
 
@@ -22,9 +22,146 @@ public class TabListManager {
     private final Map<UUID, String> sessionCodes = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
 
+    private Team adminTeam;
+    private Team defaultTeam;
+
+    private boolean warnedScoreboardManagerNotReady = false;
+    private boolean colorsSet = false;
+
+    private static final Set<String> VALID_COLORS = Set.of(
+            "black", "dark_blue", "dark_green", "dark_aqua", "dark_red", "dark_purple", "gold",
+            "gray", "dark_gray", "blue", "green", "aqua", "red", "light_purple", "yellow", "white"
+    );
+
     public TabListManager(FendorisPlugin plugin) {
         this.plugin = plugin;
         loadOnlineCountSubstitutions();
+        ensureTeamsExist();
+    }
+
+    public void ensureTeamsExist() {
+        if (Bukkit.getScoreboardManager() == null) {
+            if (!warnedScoreboardManagerNotReady) {
+                plugin.getLogger().warning("ScoreboardManager not ready yet, skipping team setup.");
+                warnedScoreboardManagerNotReady = true;
+            }
+            return;
+        }
+
+        Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
+
+        adminTeam = scoreboard.getTeam("fendoris_admin");
+        if (adminTeam == null) {
+            adminTeam = scoreboard.registerNewTeam("fendoris_admin");
+        } else {
+            adminTeam.getEntries().forEach(adminTeam::removeEntry);
+        }
+
+        defaultTeam = scoreboard.getTeam("fendoris_default");
+        if (defaultTeam == null) {
+            defaultTeam = scoreboard.registerNewTeam("fendoris_default");
+        } else {
+            defaultTeam.getEntries().forEach(defaultTeam::removeEntry);
+        }
+
+        if (!colorsSet) {
+            String adminColor = plugin.getConfig().getString("tab-operator-color", "red").toLowerCase(Locale.ROOT);
+            if (!VALID_COLORS.contains(adminColor)) {
+                plugin.getLogger().warning("Invalid color for 'tab-operator-color': '" + adminColor + "'. Defaulting to 'red'.");
+                adminColor = "red";
+            }
+
+            plugin.getLogger().info("Setting Team Colors at Startup:");
+            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
+                    "team modify fendoris_admin color " + adminColor);
+            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
+                    "team modify fendoris_default color white");
+            colorsSet = true;
+        }
+    }
+
+    private void checkTeamsInitialized() {
+        if (adminTeam == null || defaultTeam == null) {
+            ensureTeamsExist();
+        }
+    }
+
+    public void assignPlayerToTeam(Player player) {
+        if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
+
+        checkTeamsInitialized();
+
+        boolean isAdmin = player.hasPermission("fendoris.admin") || player.isOp();
+
+        if (isAdmin) {
+            if (!adminTeam.hasEntry(player.getName())) {
+                adminTeam.addEntry(player.getName());
+            }
+            if (defaultTeam.hasEntry(player.getName())) {
+                defaultTeam.removeEntry(player.getName());
+            }
+        } else {
+            if (!defaultTeam.hasEntry(player.getName())) {
+                defaultTeam.addEntry(player.getName());
+            }
+            if (adminTeam.hasEntry(player.getName())) {
+                adminTeam.removeEntry(player.getName());
+            }
+        }
+    }
+
+    public void start() {
+        if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
+
+        int interval = plugin.getConfig().getInt("tablist-update-interval-seconds", 10);
+        if (interval < 1) interval = 1;
+
+        updateAllPlayers();
+
+        task = Bukkit.getScheduler().runTaskTimer(plugin, this::updateAllPlayers, interval * 20L, interval * 20L);
+    }
+
+    public void stop() {
+        if (task != null) {
+            task.cancel();
+        }
+    }
+
+    public void updateAllPlayers() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            updateTabList(player);
+        }
+    }
+
+    public void updateTabList(Player player) {
+        if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
+
+        checkTeamsInitialized();
+
+        if (player.hasPermission("fendoris.admin")) {
+            if (!adminTeam.hasEntry(player.getName())) adminTeam.addEntry(player.getName());
+            if (defaultTeam.hasEntry(player.getName())) defaultTeam.removeEntry(player.getName());
+        } else {
+            if (!player.isOp()) {
+                if (!defaultTeam.hasEntry(player.getName())) defaultTeam.addEntry(player.getName());
+            } else {
+                if (adminTeam.hasEntry(player.getName())) adminTeam.removeEntry(player.getName());
+                if (defaultTeam.hasEntry(player.getName())) defaultTeam.removeEntry(player.getName());
+            }
+        }
+
+        String headerRaw = plugin.getConfig().getString("tablist-header", "");
+        String footerRaw = plugin.getConfig().getString("tablist-footer", "");
+
+        String tps = formatTps(plugin.getServer().getTPS()[0]);
+
+        String header = replacePlaceholders(headerRaw, player, tps);
+        String footer = replacePlaceholders(footerRaw, player, tps);
+
+        Component headerComponent = miniMessage.deserialize(header);
+        Component footerComponent = miniMessage.deserialize(footer);
+
+        player.sendPlayerListHeaderAndFooter(headerComponent, footerComponent);
     }
 
     private void loadOnlineCountSubstitutions() {
@@ -59,46 +196,6 @@ public class TabListManager {
             case 9 -> "Nine";
             default -> String.valueOf(n);
         };
-    }
-
-    public void start() {
-        if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
-
-        int interval = plugin.getConfig().getInt("tablist-update-interval-seconds", 10);
-        if (interval < 1) interval = 1;
-
-        updateAllPlayers();
-
-        task = Bukkit.getScheduler().runTaskTimer(plugin, this::updateAllPlayers, interval * 20L, interval * 20L);
-    }
-
-    public void stop() {
-        if (task != null) {
-            task.cancel();
-        }
-    }
-
-    public void updateAllPlayers() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            updateTabList(player);
-        }
-    }
-
-    public void updateTabList(Player player) {
-        if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
-
-        String headerRaw = plugin.getConfig().getString("tablist-header", "");
-        String footerRaw = plugin.getConfig().getString("tablist-footer", "");
-
-        String tps = formatTps(plugin.getServer().getTPS()[0]);
-
-        String header = replacePlaceholders(headerRaw, player, tps);
-        String footer = replacePlaceholders(footerRaw, player, tps);
-
-        Component headerComponent = miniMessage.deserialize(header);
-        Component footerComponent = miniMessage.deserialize(footer);
-
-        player.sendPlayerListHeaderAndFooter(headerComponent, footerComponent);
     }
 
     private String formatTps(double rawTps) {
@@ -146,11 +243,10 @@ public class TabListManager {
                 .replace("%session_code%", sessionCode)
                 .replace("<newline>", "\n");
 
-        // Fix empty lines so Minecraft renders them properly
         String[] lines = replaced.split("\n", -1);
         for (int i = 0; i < lines.length; i++) {
             if (lines[i].isBlank()) {
-                lines[i] = "\u200A"; // Hair space for empty line
+                lines[i] = "\u200A"; // Hair space
             }
         }
 
@@ -163,18 +259,13 @@ public class TabListManager {
             }
         }
 
-        replaced = String.join("\n", lines);
-
-        // Do NOT trim after padding, or it removes your spaces/dots
-
-        return replaced;
+        return String.join("\n", lines);
     }
-
-
-
 
     public void reloadConfigSettings() {
         loadOnlineCountSubstitutions();
+        colorsSet = false; // Allow team colors to reapply
+        ensureTeamsExist();
     }
 
     public void clearSessionCode(UUID playerId) {
