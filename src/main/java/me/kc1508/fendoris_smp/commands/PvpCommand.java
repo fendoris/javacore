@@ -85,15 +85,15 @@ public class PvpCommand implements CommandExecutor {
         if (currentlyEnabled) {
             plugin.getPvpEnabledPlayers().remove(uuid);
             sendConfigMessageOrError(player, "pvp-disabled-message");
-            plugin.broadcastToAdminsExceptSender(player.getName(),
-                    "admin-pvp-toggle-off",
+            plugin.broadcastToOPsExceptSender(player.getName(),
+                    "operator-pvp-toggle-off",
                     "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <red>off</red>]</gray>",
                     "%player%", player.getName());
         } else {
             plugin.getPvpEnabledPlayers().add(uuid);
             sendConfigMessageOrError(player, "pvp-enabled-message");
-            plugin.broadcastToAdminsExceptSender(player.getName(),
-                    "admin-pvp-toggle-on",
+            plugin.broadcastToOPsExceptSender(player.getName(),
+                    "operator-pvp-toggle-on",
                     "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>",
                     "%player%", player.getName());
         }

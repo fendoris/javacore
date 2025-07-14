@@ -22,7 +22,7 @@ public class TabListManager {
     private final Map<UUID, String> sessionCodes = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
 
-    private Team adminTeam;
+    private Team operatorTeam;
     private Team defaultTeam;
 
     private boolean warnedScoreboardManagerNotReady = false;
@@ -40,6 +40,7 @@ public class TabListManager {
     }
 
     public void ensureTeamsExist() {
+        // noinspection ConstantConditions
         if (Bukkit.getScoreboardManager() == null) {
             if (!warnedScoreboardManagerNotReady) {
                 plugin.getLogger().warning("ScoreboardManager not ready yet, skipping team setup.");
@@ -50,38 +51,38 @@ public class TabListManager {
 
         Scoreboard scoreboard = Bukkit.getScoreboardManager().getMainScoreboard();
 
-        adminTeam = scoreboard.getTeam("fendoris_admin");
-        if (adminTeam == null) {
-            adminTeam = scoreboard.registerNewTeam("fendoris_admin");
+        operatorTeam = scoreboard.getTeam("fendoris_0_operator");
+        if (operatorTeam == null) {
+            operatorTeam = scoreboard.registerNewTeam("fendoris_0_operator");
         } else {
-            adminTeam.getEntries().forEach(adminTeam::removeEntry);
+            operatorTeam.getEntries().forEach(operatorTeam::removeEntry);
         }
 
-        defaultTeam = scoreboard.getTeam("fendoris_default");
+        defaultTeam = scoreboard.getTeam("fendoris_1_default");
         if (defaultTeam == null) {
-            defaultTeam = scoreboard.registerNewTeam("fendoris_default");
+            defaultTeam = scoreboard.registerNewTeam("fendoris_1_default");
         } else {
             defaultTeam.getEntries().forEach(defaultTeam::removeEntry);
         }
 
         if (!colorsSet) {
-            String adminColor = plugin.getConfig().getString("tab-operator-color", "red").toLowerCase(Locale.ROOT);
-            if (!VALID_COLORS.contains(adminColor)) {
-                plugin.getLogger().warning("Invalid color for 'tab-operator-color': '" + adminColor + "'. Defaulting to 'red'.");
-                adminColor = "red";
+            String operatorColor = plugin.getConfig().getString("tab-operator-color", "red").toLowerCase(Locale.ROOT);
+            if (!VALID_COLORS.contains(operatorColor)) {
+                plugin.getLogger().warning("Invalid color for 'tab-operator-color': '" + operatorColor + "'. Defaulting to 'red'.");
+                operatorColor = "red";
             }
 
             plugin.getLogger().info("Setting Team Colors at Startup:");
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-                    "team modify fendoris_admin color " + adminColor);
+                    "team modify fendoris_0_operator color " + operatorColor);
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(),
-                    "team modify fendoris_default color white");
+                    "team modify fendoris_1_default color white");
             colorsSet = true;
         }
     }
 
     private void checkTeamsInitialized() {
-        if (adminTeam == null || defaultTeam == null) {
+        if (operatorTeam == null || defaultTeam == null) {
             ensureTeamsExist();
         }
     }
@@ -91,22 +92,18 @@ public class TabListManager {
 
         checkTeamsInitialized();
 
-        boolean isAdmin = player.hasPermission("fendoris.admin") || player.isOp();
+        boolean isOperator = player.hasPermission("fendoris.operator") || player.isOp();
 
-        if (isAdmin) {
-            if (!adminTeam.hasEntry(player.getName())) {
-                adminTeam.addEntry(player.getName());
+        if (isOperator) {
+            if (!operatorTeam.hasEntry(player.getName())) {
+                operatorTeam.addEntry(player.getName());
             }
-            if (defaultTeam.hasEntry(player.getName())) {
-                defaultTeam.removeEntry(player.getName());
-            }
+            defaultTeam.removeEntry(player.getName());
         } else {
             if (!defaultTeam.hasEntry(player.getName())) {
                 defaultTeam.addEntry(player.getName());
             }
-            if (adminTeam.hasEntry(player.getName())) {
-                adminTeam.removeEntry(player.getName());
-            }
+            operatorTeam.removeEntry(player.getName());
         }
     }
 
@@ -137,18 +134,7 @@ public class TabListManager {
         if (!plugin.getConfig().getBoolean("tablist-enabled", false)) return;
 
         checkTeamsInitialized();
-
-        if (player.hasPermission("fendoris.admin")) {
-            if (!adminTeam.hasEntry(player.getName())) adminTeam.addEntry(player.getName());
-            if (defaultTeam.hasEntry(player.getName())) defaultTeam.removeEntry(player.getName());
-        } else {
-            if (!player.isOp()) {
-                if (!defaultTeam.hasEntry(player.getName())) defaultTeam.addEntry(player.getName());
-            } else {
-                if (adminTeam.hasEntry(player.getName())) adminTeam.removeEntry(player.getName());
-                if (defaultTeam.hasEntry(player.getName())) defaultTeam.removeEntry(player.getName());
-            }
-        }
+        assignPlayerToTeam(player);
 
         String headerRaw = plugin.getConfig().getString("tablist-header", "");
         String footerRaw = plugin.getConfig().getString("tablist-footer", "");
@@ -246,7 +232,7 @@ public class TabListManager {
         String[] lines = replaced.split("\n", -1);
         for (int i = 0; i < lines.length; i++) {
             if (lines[i].isBlank()) {
-                lines[i] = "\u200A"; // Hair space
+                lines[i] = "\u200A";
             }
         }
 
@@ -264,7 +250,7 @@ public class TabListManager {
 
     public void reloadConfigSettings() {
         loadOnlineCountSubstitutions();
-        colorsSet = false; // Allow team colors to reapply
+        colorsSet = false;
         ensureTeamsExist();
     }
 

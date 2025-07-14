@@ -25,7 +25,7 @@ public class PlayerJoinQuitListener implements Listener {
     private String publicQuitMessage;
     private String publicOperatorJoinMessage;
     private String publicOperatorQuitMessage;
-    private boolean adminCommandLogsEnabled;
+    private boolean opCommandLogsEnabled;
     private boolean sessionCodeEnabled;
 
     public PlayerJoinQuitListener(FendorisPlugin plugin) {
@@ -52,7 +52,7 @@ public class PlayerJoinQuitListener implements Listener {
         this.publicOperatorJoinMessage = config.getString("public-operator-join-message", "");
         this.publicOperatorQuitMessage = config.getString("public-operator-quit-message", "");
 
-        this.adminCommandLogsEnabled = config.getBoolean("admin-command-logs-enabled", false);
+        this.opCommandLogsEnabled = config.getBoolean("operator-command-logs-enabled", false);
         this.sessionCodeEnabled = config.getBoolean("session-code-enabled", false);
     }
 
@@ -89,7 +89,7 @@ public class PlayerJoinQuitListener implements Listener {
             event.joinMessage(Component.empty());
         }
 
-        if (adminCommandLogsEnabled) {
+        if (opCommandLogsEnabled) {
             if (sessionCodeEnabled && plugin.getTabListManager() != null) {
                 String sessionCode = plugin.getTabListManager().getSessionCode(player);
                 plugin.getLogger().info(player.getName() + " client connected [Session: " + sessionCode + "]");
@@ -123,7 +123,7 @@ public class PlayerJoinQuitListener implements Listener {
             event.quitMessage(Component.empty());
         }
 
-        if (adminCommandLogsEnabled) {
+        if (opCommandLogsEnabled) {
             if (sessionCodeEnabled && plugin.getTabListManager() != null) {
                 String sessionCode = plugin.getTabListManager().getSessionCode(player);
                 plugin.getLogger().info(player.getName() + " disconnected [Session: " + sessionCode + "]");

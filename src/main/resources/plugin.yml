@@ -10,7 +10,7 @@ api-version: '1.21'
 commands:
   fendorisreload:
     description: Reload Fendoris Core
-    usage: "§cUsage: /fendorisreload (Admin) (Reload Fendoris Core)"
+    usage: "§cUsage: /fendorisreload (Operator) (Reload Fendoris Core)"
     permission: fendoris.reload
     permission-message: "§cYou don't have permission to reload the plugin."
   pvp:

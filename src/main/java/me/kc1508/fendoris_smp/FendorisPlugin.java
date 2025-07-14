@@ -150,8 +150,8 @@ public final class FendorisPlugin extends JavaPlugin {
         return tabListManager;
     }
 
-    public void broadcastToAdminsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {
-        if (!getConfig().getBoolean("admin-command-logs-enabled", true)) return;
+    public void broadcastToOPsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {
+        if (!getConfig().getBoolean("operator-command-logs-enabled", true)) return;
 
         String raw = getConfig().getString(messageKey, defaultMiniMessage);
         if (replacements.length % 2 == 0) {
@@ -165,7 +165,7 @@ public final class FendorisPlugin extends JavaPlugin {
         final String message = raw;
 
         getServer().getOnlinePlayers().forEach(player -> {
-            if (player.hasPermission("fendoris.admin") && !player.getName().equalsIgnoreCase(senderName)) {
+            if (player.hasPermission("fendoris.operator") && !player.getName().equalsIgnoreCase(senderName)) {
                 player.sendMessage(miniMessage.deserialize(message));
             }
         });

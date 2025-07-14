@@ -55,12 +55,12 @@ public class ReloadCommand implements CommandExecutor {
 
         String senderName = (sender instanceof Player p) ? p.getName() : "Console";
 
-        String broadcastMessage = plugin.getConfig().getString("admin-reload-broadcast-message");
+        String broadcastMessage = plugin.getConfig().getString("operator-reload-broadcast-message");
         if (broadcastMessage == null || broadcastMessage.isBlank()) {
-            sendConfigMessageOrError(sender, "admin-reload-broadcast-message");
+            sendConfigMessageOrError(sender, "operator-reload-broadcast-message");
         } else {
-            plugin.broadcastToAdminsExceptSender(senderName,
-                    "admin-reload-broadcast-message",
+            plugin.broadcastToOPsExceptSender(senderName,
+                    "operator-reload-broadcast-message",
                     broadcastMessage,
                     "%player%", senderName);
         }
