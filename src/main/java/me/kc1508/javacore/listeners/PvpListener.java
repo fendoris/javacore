@@ -22,6 +22,8 @@ public class PvpListener implements Listener {
 
     private final PvpCommand pvpCommand;
 
+    private static final String FALLBACK = "§cLanguage string invalid in config.";
+
     public PvpListener(FendorisPlugin plugin, PvpCommand pvpCommand) {
         this.plugin = plugin;
         this.pvpCommand = pvpCommand;
@@ -30,9 +32,7 @@ public class PvpListener implements Listener {
 
     @EventHandler
     public void onPlayerDamage(EntityDamageByEntityEvent event) {
-        // Check if PvP toggle system is enabled; if not, do nothing.
         if (!plugin.isPvpToggleEnabled()) return;
-
         if (!(event.getEntity() instanceof Player victim) || !(event.getDamager() instanceof Player attacker)) return;
 
         UUID victimId = victim.getUniqueId();
@@ -50,40 +50,42 @@ public class PvpListener implements Listener {
             if (!attackerAllows) {
                 long lastMessage = attackerMessageCooldowns.getOrDefault(attackerId, 0L);
                 if (now - lastMessage >= cooldown * 1000L) {
-                    sendMiniMessage(attacker, "pvp-attacker-disabled-message",
-                            "<red>ERROR: PvP attacker disabled message missing in config.</red>");
+                    sendMiniMessage(attacker, "system.pvp.attacker-disabled-message");
                     attackerMessageCooldowns.put(attackerId, now);
                 }
-                return; // Prioritize attacker message only
+                return;
             }
 
             long lastMessage = victimMessageCooldowns.getOrDefault(victimId, 0L);
             if (now - lastMessage >= cooldown * 1000L) {
-                sendMiniMessage(attacker, "pvp-victim-disabled-message",
-                        "<red>ERROR: PvP victim disabled message missing in config.</red>");
+                sendMiniMessage(attacker, "system.pvp.victim-disabled-message");
                 victimMessageCooldowns.put(victimId, now);
             }
             return;
         }
 
-        // Both allow PvP - update combat cooldown timestamps
+        // Update combat cooldowns
         if (plugin.isPvpCombatCooldownEnabled()) {
             pvpCommand.updateCombatTimestamp(attackerId);
             pvpCommand.updateCombatTimestamp(victimId);
         }
     }
 
-    private void sendMiniMessage(Player player, String key, String defaultMessage, String... replacements) {
-        String rawMessage = plugin.getConfig().getString(key, defaultMessage);
+    private void sendMiniMessage(Player player, String key, String... replacements) {
+        String rawMessage = plugin.getConfig().getString(key);
+        if (rawMessage == null || rawMessage.isBlank()) {
+            player.sendMessage(FALLBACK);
+            return;
+        }
+
         if (replacements.length % 2 == 0) {
             for (int i = 0; i < replacements.length; i += 2) {
                 String placeholder = replacements[i];
                 String replacement = replacements[i + 1];
-                if (rawMessage.contains(placeholder)) {
-                    rawMessage = rawMessage.replace(placeholder, replacement);
-                }
+                rawMessage = rawMessage.replace(placeholder, replacement);
             }
         }
+
         player.sendMessage(miniMessage.deserialize(rawMessage));
     }
 }

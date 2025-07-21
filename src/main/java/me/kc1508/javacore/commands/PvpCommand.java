@@ -19,6 +19,8 @@ public class PvpCommand implements CommandExecutor {
     private final Map<UUID, Long> toggleCooldowns = new HashMap<>();
     private final Map<UUID, Long> combatCooldowns = new HashMap<>();
 
+    private static final String FALLBACK = "§cLanguage string invalid in config.";
+
     public PvpCommand(FendorisPlugin plugin) {
         this.plugin = plugin;
         this.miniMessage = MiniMessage.miniMessage();
@@ -32,49 +34,49 @@ public class PvpCommand implements CommandExecutor {
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Only players can use this command.");
+            sendMessageRaw(sender, "system.pvp.only-player-message");
             return true;
         }
 
         if (args.length > 0) {
-            sender.sendMessage("§cUsage: /pvp (Toggle PvP on or off for yourself)");
+            sendMessageRaw(player, "system.pvp.usage-message");
             return true;
         }
 
         UUID uuid = player.getUniqueId();
 
-        if (!plugin.isPvpToggleEnabled()) {
-            sendConfigMessageOrError(player, "pvp-toggle-disabled-message");
+        if (!plugin.getConfig().getBoolean("system.pvp.enabled", true)) {
+            sendMessageRaw(player, "system.pvp.toggle-disabled-message");
             return true;
         }
 
         long now = System.currentTimeMillis();
 
-        if (plugin.isPvpCombatCooldownEnabled()) {
-            int combatCooldown = plugin.getPvpCombatCooldownSeconds();
+        if (plugin.getConfig().getBoolean("system.pvp.combat-cooldown-enabled", true)) {
+            int combatCooldown = plugin.getConfig().getInt("system.pvp.combat-cooldown-seconds", 10);
             long lastCombat = combatCooldowns.getOrDefault(uuid, 0L);
             if (now - lastCombat < combatCooldown * 1000L) {
                 long millisLeft = (combatCooldown * 1000L) - (now - lastCombat);
                 long secondsLeft = millisLeft / 1000L;
                 if (secondsLeft < 1) {
-                    sendConfigMessageOrError(player, "pvp-combat-cooldown-message-less-than-1");
+                    sendMessageRaw(player, "system.pvp.combat-cooldown-message-less-than-1");
                 } else {
-                    sendConfigMessageOrError(player, "pvp-combat-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
+                    sendMessageRaw(player, "system.pvp.combat-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
         }
 
-        if (plugin.isPvpCooldownEnabled()) {
-            int cooldown = plugin.getPvpCooldownSeconds();
+        if (plugin.getConfig().getBoolean("system.pvp.cooldown-enabled", true)) {
+            int cooldown = plugin.getConfig().getInt("system.pvp.cooldown-seconds", 30);
             long lastUsed = toggleCooldowns.getOrDefault(uuid, 0L);
             if (now - lastUsed < cooldown * 1000L) {
                 long millisLeft = (cooldown * 1000L) - (now - lastUsed);
                 long secondsLeft = millisLeft / 1000L;
                 if (secondsLeft < 1) {
-                    sendConfigMessageOrError(player, "pvp-toggle-cooldown-message-less-than-1");
+                    sendMessageRaw(player, "system.pvp.toggle-cooldown-message-less-than-1");
                 } else {
-                    sendConfigMessageOrError(player, "pvp-toggle-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
+                    sendMessageRaw(player, "system.pvp.toggle-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
@@ -84,26 +86,20 @@ public class PvpCommand implements CommandExecutor {
         boolean currentlyEnabled = plugin.getPvpEnabledPlayers().contains(uuid);
         if (currentlyEnabled) {
             plugin.getPvpEnabledPlayers().remove(uuid);
-            sendConfigMessageOrError(player, "pvp-disabled-message");
-            plugin.broadcastToOPsExceptSender(player.getName(),
-                    "operator-pvp-toggle-off",
-                    "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <red>off</red>]</gray>",
-                    "%player%", player.getName());
+            sendMessageRaw(player, "system.pvp.disabled-message");
+            plugin.broadcastToOPsExceptSender(player.getName(), "system.pvp.operator-pvp-toggle-off", "%player%", player.getName());
         } else {
             plugin.getPvpEnabledPlayers().add(uuid);
-            sendConfigMessageOrError(player, "pvp-enabled-message");
-            plugin.broadcastToOPsExceptSender(player.getName(),
-                    "operator-pvp-toggle-on",
-                    "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>",
-                    "%player%", player.getName());
+            sendMessageRaw(player, "system.pvp.enabled-message");
+            plugin.broadcastToOPsExceptSender(player.getName(), "system.pvp.operator-pvp-toggle-on", "%player%", player.getName());
         }
         return true;
     }
 
-    private void sendConfigMessageOrError(Player player, String key, String... replacements) {
+    private void sendMessageRaw(CommandSender sender, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
-            player.sendMessage("<red>ERROR: Missing or empty config message for '" + key + "'!</red>");
+            sender.sendMessage(FALLBACK); // Send legacy fallback directly
             return;
         }
 
@@ -114,6 +110,7 @@ public class PvpCommand implements CommandExecutor {
                 rawMessage = rawMessage.replace(placeholder, replacement);
             }
         }
-        player.sendMessage(miniMessage.deserialize(rawMessage));
+
+        sender.sendMessage(miniMessage.deserialize(rawMessage));
     }
 }

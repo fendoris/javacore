@@ -39,10 +39,10 @@ public final class FendorisPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getLogger().info(ANSI_GREEN + "Fendoris JavaCore plugin is starting..." + ANSI_RESET);
+        getLogger().info(ANSI_GREEN + "JavaCore Plugin Starting" + ANSI_RESET);
 
         if (devModeConfigReset) {
-            getLogger().warning(ANSI_RED + "Development mode: Overwriting config.yml..." + ANSI_RESET);
+            getLogger().warning(ANSI_RED + "Development Mode Enabled, Overwriting config.yml" + ANSI_RESET);
             saveResource("config.yml", true);
             reloadConfig();
         } else {
@@ -89,7 +89,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info(ANSI_RED + "Fendoris JavaCore plugin is stopping..." + ANSI_RESET);
+        getLogger().info(ANSI_RED + "JavaCore Plugin Stopping" + ANSI_RESET);
         if (tabListManager != null) tabListManager.stop();
     }
 
@@ -114,27 +114,30 @@ public final class FendorisPlugin extends JavaPlugin {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isPvpToggleEnabled() {
-        return getConfig().getBoolean("pvp-toggle-system-enabled", true);
+        return getConfig().getBoolean("system.pvp.enabled", true);
     }
 
+    @SuppressWarnings("unused")
     public boolean isPvpCooldownEnabled() {
-        return getConfig().getBoolean("pvp-toggle-cooldown-enabled", true);
+        return getConfig().getBoolean("system.pvp.cooldown-enabled", true);
     }
 
+    @SuppressWarnings("unused")
     public int getPvpCooldownSeconds() {
-        return Math.min(300, Math.max(0, getConfig().getInt("pvp-toggle-cooldown-seconds", 30)));
+        return Math.min(300, Math.max(0, getConfig().getInt("system.pvp.cooldown-seconds", 30)));
     }
 
     public int getPvpMessageCooldownSeconds() {
-        return Math.min(300, Math.max(0, getConfig().getInt("pvp-message-cooldown-seconds", 15)));
+        return Math.min(300, Math.max(0, getConfig().getInt("system.pvp.message-cooldown-seconds", 15)));
     }
 
     public boolean isPvpCombatCooldownEnabled() {
-        return getConfig().getBoolean("pvp-toggle-combat-cooldown-enabled", true);
+        return getConfig().getBoolean("system.pvp.combat-cooldown-enabled", true);
     }
 
+    @SuppressWarnings("unused")
     public int getPvpCombatCooldownSeconds() {
-        return Math.min(300, Math.max(0, getConfig().getInt("pvp-toggle-combat-cooldown-seconds", 10)));
+        return Math.min(300, Math.max(0, getConfig().getInt("system.pvp.combat-cooldown-seconds", 10)));
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")

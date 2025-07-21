@@ -21,23 +21,31 @@ public-quit-message: "<gray>%player% disconnected</gray><reset>"
 public-operator-join-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>connected</gray><reset>"
 public-operator-quit-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>disconnected</gray><reset>"
 
-# System: PvP Toggle
-pvp-toggle-system-enabled: true
-pvp-toggle-cooldown-enabled: true
-pvp-toggle-cooldown-seconds: 30
-pvp-message-cooldown-seconds: 5
-pvp-toggle-combat-cooldown-enabled: true
-pvp-toggle-combat-cooldown-seconds: 10
+# System: PvP
+system.pvp:
+  enabled: true
 
-pvp-toggle-disabled-message: "<red>The PvP toggle system is currently disabled on this server.<reset>"
-pvp-combat-cooldown-message-less-than-1: "<red>You must wait less than 1s after combat to toggle PvP.<reset>"
-pvp-combat-cooldown-message: "<red>You must wait %seconds%s after combat to toggle PvP.<reset>"
-pvp-toggle-cooldown-message-less-than-1: "<red>You must wait less than 1s to toggle PvP again.<reset>"
-pvp-toggle-cooldown-message: "<red>You must wait %seconds%s to toggle PvP again.<reset>"
-pvp-disabled-message: "<red>You have disabled PvP.<reset>"
-pvp-enabled-message: "<red>You have enabled PvP.<reset>"
-pvp-attacker-disabled-message: "<red>You cannot hit players while PvP is disabled.<reset>"
-pvp-victim-disabled-message: "<red>That player has PvP disabled.<reset>"
+  cooldown-enabled: true
+  cooldown-seconds: 30
+
+  combat-cooldown-enabled: true
+  combat-cooldown-seconds: 10
+
+  message-cooldown-seconds: 5
+  attacker-disabled-message: "<red>You cannot PvP while your PvP is disabled.<reset>"
+  victim-disabled-message: "<red>This player has PvP disabled.<reset>"
+
+  only-player-message: "<red>Only players can use this command.<reset>"
+  usage-message: "<red>Usage: /pvp (Toggle PvP on or off for yourself)<reset>"
+  toggle-disabled-message: "<red>The PvP toggle system is currently disabled on this server.<reset>"
+  combat-cooldown-message-less-than-1: "<red>You must wait less than 1s after combat to toggle PvP.<reset>"
+  combat-cooldown-message: "<red>You must wait %seconds%s after combat to toggle PvP.<reset>"
+  toggle-cooldown-message-less-than-1: "<red>You must wait less than 1s to toggle PvP again.<reset>"
+  toggle-cooldown-message: "<red>You must wait %seconds%s to toggle PvP again.<reset>"
+  disabled-message: "<red>You have disabled PvP.<reset>"
+  enabled-message: "<red>You have enabled PvP.<reset>"
+  operator-pvp-toggle-off: "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <red>off</red>]</gray>"
+  operator-pvp-toggle-on: "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>"
 
 # System: Death Messages
 death-message-enabled: true
