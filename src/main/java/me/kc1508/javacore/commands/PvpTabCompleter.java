@@ -1,4 +1,4 @@
-package me.kc1508.fendoris_smp.commands;
+package me.kc1508.javacore.commands;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

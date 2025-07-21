@@ -1,7 +1,7 @@
-package me.kc1508.fendoris_smp.listeners;
+package me.kc1508.javacore.listeners;
 
-import me.kc1508.fendoris_smp.FendorisPlugin;
-import me.kc1508.fendoris_smp.commands.PvpCommand;
+import me.kc1508.javacore.FendorisPlugin;
+import me.kc1508.javacore.commands.PvpCommand;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

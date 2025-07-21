@@ -1,7 +1,7 @@
-name: fendoris-smp
+name: JavaCore
 version: '1.0-SNAPSHOT'
-main: me.kc1508.fendoris_smp.FendorisPlugin
-description: "Fendoris Survival Multiplayer Server Core"
+main: me.kc1508.javacore.FendorisPlugin
+description: "Server Core for Fendoris Minecraft "
 load: STARTUP
 authors: [KC1508]
 website: https://fendoris.com

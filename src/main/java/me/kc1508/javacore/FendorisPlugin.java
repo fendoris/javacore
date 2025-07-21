@@ -1,17 +1,17 @@
-package me.kc1508.fendoris_smp;
+package me.kc1508.javacore;
 
-import me.kc1508.fendoris_smp.commands.PvpCommand;
-import me.kc1508.fendoris_smp.commands.ReloadCommand;
-import me.kc1508.fendoris_smp.commands.PvpTabCompleter;
-import me.kc1508.fendoris_smp.commands.SessionCommand;
-import me.kc1508.fendoris_smp.commands.SessionTabCompleter;
-import me.kc1508.fendoris_smp.config.ConfigValidator;
-import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
-import me.kc1508.fendoris_smp.listeners.PlayerDeathListener;
-import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
-import me.kc1508.fendoris_smp.listeners.ServerPingListener;
-import me.kc1508.fendoris_smp.listeners.PvpListener;
-import me.kc1508.fendoris_smp.tablist.TabListManager;
+import me.kc1508.javacore.commands.PvpCommand;
+import me.kc1508.javacore.commands.ReloadCommand;
+import me.kc1508.javacore.commands.PvpTabCompleter;
+import me.kc1508.javacore.commands.SessionCommand;
+import me.kc1508.javacore.commands.SessionTabCompleter;
+import me.kc1508.javacore.config.ConfigValidator;
+import me.kc1508.javacore.listeners.AllowedCommandListener;
+import me.kc1508.javacore.listeners.PlayerDeathListener;
+import me.kc1508.javacore.listeners.PlayerJoinQuitListener;
+import me.kc1508.javacore.listeners.ServerPingListener;
+import me.kc1508.javacore.listeners.PvpListener;
+import me.kc1508.javacore.tablist.TabListManager;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,7 +39,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getLogger().info(ANSI_GREEN + "Fendoris SMP plugin is starting..." + ANSI_RESET);
+        getLogger().info(ANSI_GREEN + "Fendoris JavaCore plugin is starting..." + ANSI_RESET);
 
         if (devModeConfigReset) {
             getLogger().warning(ANSI_RED + "Development mode: Overwriting config.yml..." + ANSI_RESET);
@@ -89,7 +89,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        getLogger().info(ANSI_RED + "Fendoris SMP plugin is stopping..." + ANSI_RESET);
+        getLogger().info(ANSI_RED + "Fendoris JavaCore plugin is stopping..." + ANSI_RESET);
         if (tabListManager != null) tabListManager.stop();
     }
 

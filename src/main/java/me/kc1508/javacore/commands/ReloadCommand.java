@@ -1,9 +1,9 @@
-package me.kc1508.fendoris_smp.commands;
+package me.kc1508.javacore.commands;
 
-import me.kc1508.fendoris_smp.FendorisPlugin;
-import me.kc1508.fendoris_smp.listeners.PlayerJoinQuitListener;
-import me.kc1508.fendoris_smp.listeners.AllowedCommandListener;
-import me.kc1508.fendoris_smp.listeners.ServerPingListener;
+import me.kc1508.javacore.FendorisPlugin;
+import me.kc1508.javacore.listeners.PlayerJoinQuitListener;
+import me.kc1508.javacore.listeners.AllowedCommandListener;
+import me.kc1508.javacore.listeners.ServerPingListener;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;

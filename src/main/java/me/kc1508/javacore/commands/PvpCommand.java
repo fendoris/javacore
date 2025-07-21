@@ -1,6 +1,6 @@
-package me.kc1508.fendoris_smp.commands;
+package me.kc1508.javacore.commands;
 
-import me.kc1508.fendoris_smp.FendorisPlugin;
+import me.kc1508.javacore.FendorisPlugin;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

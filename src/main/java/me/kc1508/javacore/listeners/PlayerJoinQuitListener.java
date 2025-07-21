@@ -1,6 +1,6 @@
-package me.kc1508.fendoris_smp.listeners;
+package me.kc1508.javacore.listeners;
 
-import me.kc1508.fendoris_smp.FendorisPlugin;
+import me.kc1508.javacore.FendorisPlugin;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.configuration.file.FileConfiguration;

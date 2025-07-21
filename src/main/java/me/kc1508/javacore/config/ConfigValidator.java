@@ -1,6 +1,6 @@
-package me.kc1508.fendoris_smp.config;
+package me.kc1508.javacore.config;
 
-import me.kc1508.fendoris_smp.FendorisPlugin;
+import me.kc1508.javacore.FendorisPlugin;
 
 public class ConfigValidator {
     private final FendorisPlugin plugin;
