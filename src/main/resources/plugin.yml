@@ -6,7 +6,7 @@ load: STARTUP
 authors: [KC1508]
 website: https://fendoris.com
 prefix: Fendoris
-api-version: '1.21'
+api-version: '1.21.8'
 commands:
   fendorisreload:
     description: Reload Fendoris Core
