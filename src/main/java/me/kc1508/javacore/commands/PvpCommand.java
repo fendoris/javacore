@@ -39,14 +39,14 @@ public class PvpCommand implements CommandExecutor {
         }
 
         if (args.length > 0) {
-            sendMessageRaw(player, "system.pvp.usage-message");
+            sendMessageToPlayer(player, "system.pvp.usage-message");
             return true;
         }
 
         UUID uuid = player.getUniqueId();
 
         if (!plugin.getConfig().getBoolean("system.pvp.enabled", true)) {
-            sendMessageRaw(player, "system.pvp.toggle-disabled-message");
+            sendMessageToPlayer(player, "system.pvp.toggle-disabled-message");
             return true;
         }
 
@@ -59,9 +59,9 @@ public class PvpCommand implements CommandExecutor {
                 long millisLeft = (combatCooldown * 1000L) - (now - lastCombat);
                 long secondsLeft = millisLeft / 1000L;
                 if (secondsLeft < 1) {
-                    sendMessageRaw(player, "system.pvp.combat-cooldown-message-less-than-1");
+                    sendMessageToPlayer(player, "system.pvp.combat-cooldown-message-less-than-1");
                 } else {
-                    sendMessageRaw(player, "system.pvp.combat-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
+                    sendMessageToPlayer(player, "system.pvp.combat-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
@@ -74,9 +74,9 @@ public class PvpCommand implements CommandExecutor {
                 long millisLeft = (cooldown * 1000L) - (now - lastUsed);
                 long secondsLeft = millisLeft / 1000L;
                 if (secondsLeft < 1) {
-                    sendMessageRaw(player, "system.pvp.toggle-cooldown-message-less-than-1");
+                    sendMessageToPlayer(player, "system.pvp.toggle-cooldown-message-less-than-1");
                 } else {
-                    sendMessageRaw(player, "system.pvp.toggle-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
+                    sendMessageToPlayer(player, "system.pvp.toggle-cooldown-message", "%seconds%", String.valueOf(secondsLeft));
                 }
                 return true;
             }
@@ -86,20 +86,38 @@ public class PvpCommand implements CommandExecutor {
         boolean currentlyEnabled = plugin.getPvpEnabledPlayers().contains(uuid);
         if (currentlyEnabled) {
             plugin.getPvpEnabledPlayers().remove(uuid);
-            sendMessageRaw(player, "system.pvp.disabled-message");
+            sendMessageToPlayer(player, "system.pvp.disabled-message");
             plugin.broadcastToOPsExceptSender(player.getName(), "system.pvp.operator-pvp-toggle-off", "%player%", player.getName());
         } else {
             plugin.getPvpEnabledPlayers().add(uuid);
-            sendMessageRaw(player, "system.pvp.enabled-message");
+            sendMessageToPlayer(player, "system.pvp.enabled-message");
             plugin.broadcastToOPsExceptSender(player.getName(), "system.pvp.operator-pvp-toggle-on", "%player%", player.getName());
         }
         return true;
     }
 
+    /**
+     * Sends a message to a player, always replacing %player% with their name,
+     * plus any additional replacements.
+     */
+    private void sendMessageToPlayer(Player player, String key, String... extraReplacements) {
+        int extraLength = extraReplacements.length;
+        String[] replacements = new String[extraLength + 2];
+        System.arraycopy(extraReplacements, 0, replacements, 0, extraLength);
+        replacements[extraLength] = "%player%";
+        replacements[extraLength + 1] = player.getName();
+        sendMessageRaw(player, key, replacements);
+    }
+
+    /**
+     * Sends a raw message from config to any CommandSender.
+     * Performs placeholder replacements as provided.
+     */
     private void sendMessageRaw(CommandSender sender, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
-            sender.sendMessage(FALLBACK); // Send legacy fallback directly
+            sender.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[PvpCommand] Missing or empty config key: " + key);
             return;
         }
 
@@ -109,6 +127,8 @@ public class PvpCommand implements CommandExecutor {
                 String replacement = replacements[i + 1];
                 rawMessage = rawMessage.replace(placeholder, replacement);
             }
+        } else {
+            plugin.getLogger().warning("[PvpCommand] Replacement array length is not even!");
         }
 
         sender.sendMessage(miniMessage.deserialize(rawMessage));

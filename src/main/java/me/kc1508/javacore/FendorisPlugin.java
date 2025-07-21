@@ -153,16 +153,23 @@ public final class FendorisPlugin extends JavaPlugin {
         return tabListManager;
     }
 
-    public void broadcastToOPsExceptSender(String senderName, String messageKey, String defaultMiniMessage, String... replacements) {
+    public void broadcastToOPsExceptSender(String senderName, String messageKey, String... replacements) {
         if (!getConfig().getBoolean("operator-command-logs-enabled", true)) return;
 
-        String raw = getConfig().getString(messageKey, defaultMiniMessage);
+        String raw = getConfig().getString(messageKey);
+        if (raw == null || raw.isBlank()) {
+            raw = "[Missing config string for " + messageKey + "]";
+            getLogger().warning("[broadcastToOPsExceptSender] Missing config key: " + messageKey);
+        }
+
         if (replacements.length % 2 == 0) {
             for (int i = 0; i < replacements.length; i += 2) {
                 String placeholder = replacements[i];
                 String value = replacements[i + 1];
                 raw = raw.replace(placeholder, value);
             }
+        } else {
+            getLogger().warning("[broadcastToOPsExceptSender] Replacement array length is not even!");
         }
 
         final String message = raw;
