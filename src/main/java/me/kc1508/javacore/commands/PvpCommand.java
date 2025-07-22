@@ -2,17 +2,13 @@ package me.kc1508.javacore.commands;
 
 import me.kc1508.javacore.FendorisPlugin;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
-public class PvpCommand implements CommandExecutor {
+public class PvpCommand implements CommandExecutor, TabCompleter {
 
     private final FendorisPlugin plugin;
     private final MiniMessage miniMessage;
@@ -96,10 +92,6 @@ public class PvpCommand implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Sends a message to a player, always replacing %player% with their name,
-     * plus any additional replacements.
-     */
     private void sendMessageToPlayer(Player player, String key, String... extraReplacements) {
         int extraLength = extraReplacements.length;
         String[] replacements = new String[extraLength + 2];
@@ -109,15 +101,11 @@ public class PvpCommand implements CommandExecutor {
         sendMessageRaw(player, key, replacements);
     }
 
-    /**
-     * Sends a raw message from config to any CommandSender.
-     * Performs placeholder replacements as provided.
-     */
     private void sendMessageRaw(CommandSender sender, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
             sender.sendMessage(FALLBACK);
-            plugin.getLogger().warning("[PvpCommand] Missing or empty config key: " + key);
+            plugin.getLogger().warning("[System: PvP] Missing or empty config key: " + key);
             return;
         }
 
@@ -128,9 +116,15 @@ public class PvpCommand implements CommandExecutor {
                 rawMessage = rawMessage.replace(placeholder, replacement);
             }
         } else {
-            plugin.getLogger().warning("[PvpCommand] Replacement array length is not even!");
+            plugin.getLogger().warning("[System: PvP] Replacement array length is not even!");
         }
 
         sender.sendMessage(miniMessage.deserialize(rawMessage));
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
+                                      @NotNull String alias, String @NotNull [] args) {
+        return Collections.emptyList(); // disables tab completion
     }
 }

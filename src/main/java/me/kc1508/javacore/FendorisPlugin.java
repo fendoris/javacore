@@ -62,7 +62,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
         PvpCommand pvpCommand = new PvpCommand(this);
         Objects.requireNonNull(getCommand("pvp")).setExecutor(pvpCommand);
-        Objects.requireNonNull(getCommand("pvp")).setTabCompleter(new PvpTabCompleter());
+        Objects.requireNonNull(getCommand("pvp")).setTabCompleter(pvpCommand);
 
         getServer().getPluginManager().registerEvents(new PvpListener(this, pvpCommand), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
