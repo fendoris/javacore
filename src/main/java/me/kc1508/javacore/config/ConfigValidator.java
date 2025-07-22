@@ -8,6 +8,8 @@ public class ConfigValidator {
     private final FendorisPlugin plugin;
     private final FileConfiguration config;
 
+    private static final String PREFIX = "[Fendoris] [ConfigValidator] ";
+
     public ConfigValidator(FendorisPlugin plugin) {
         this.plugin = plugin;
         this.config = plugin.getConfig();
@@ -50,32 +52,45 @@ public class ConfigValidator {
         // Death Messages
         checkBoolean("death-message-enabled");
         checkString("death-message-prefix");
+
+        // Reload Command
+        checkString("reload.no-permission");
+        checkString("reload.reload-success");
+        checkString("reload.reload-broadcast");
     }
 
     private void checkBoolean(String path) {
-        Object value = config.get(path);
-        if (!(value instanceof Boolean)) {
-            plugin.getLogger().warning("Invalid config value at '" + path + "': expected true or false. Default will be used.");
+        if (!config.contains(path)) {
+            plugin.getLogger().warning(PREFIX + "Missing config key '" + path + "'. Default will be used.");
+            return;
+        }
+
+        if (!(config.get(path) instanceof Boolean)) {
+            plugin.getLogger().warning(PREFIX + "Invalid config value at '" + path + "': expected true or false. Default will be used.");
         }
     }
 
     private void checkString(String path) {
-        Object value = config.get(path);
-        if (!(value instanceof String)) {
-            plugin.getLogger().warning("Invalid config value at '" + path + "': expected a string. Default will be used.");
+        if (!config.contains(path)) {
+            plugin.getLogger().warning(PREFIX + "Missing config key '" + path + "'. Default will be used.");
+            return;
+        }
+
+        if (!(config.get(path) instanceof String)) {
+            plugin.getLogger().warning(PREFIX + "Invalid config value at '" + path + "': expected a string. Default will be used.");
         }
     }
 
     private void checkInt(String path) {
         Object value = config.get(path);
         if (!(value instanceof Integer)) {
-            plugin.getLogger().warning("Invalid config value at '" + path + "': expected an integer. Default will be used.");
+            plugin.getLogger().warning(PREFIX + "Invalid config value at '" + path + "': expected an integer. Default will be used.");
             return;
         }
 
         int intValue = (Integer) value;
         if (intValue < 0 || intValue > 300) {
-            plugin.getLogger().warning("Config value at '" + path + "' is out of bounds (0-300). Clamping.");
+            plugin.getLogger().warning(PREFIX + "Config value at '" + path + "' is out of bounds (0–300). Clamping.");
         }
     }
 }

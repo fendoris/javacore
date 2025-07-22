@@ -2,7 +2,6 @@ package me.kc1508.javacore;
 
 import me.kc1508.javacore.commands.PvpCommand;
 import me.kc1508.javacore.commands.ReloadCommand;
-import me.kc1508.javacore.commands.PvpTabCompleter;
 import me.kc1508.javacore.commands.SessionCommand;
 import me.kc1508.javacore.commands.SessionTabCompleter;
 import me.kc1508.javacore.config.ConfigValidator;
@@ -16,7 +15,7 @@ import me.kc1508.javacore.tablist.TabListManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashSet;
+import java.util.HashSet; 
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -183,4 +182,5 @@ public final class FendorisPlugin extends JavaPlugin {
         String plain = miniMessage.stripTags(message);
         getLogger().info("[Command Log] " + plain);
     }
+
 }

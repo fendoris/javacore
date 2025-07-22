@@ -1,8 +1,10 @@
 # https://github.com/kchaney1508
 # https://webui.advntr.dev/
 
-# Other: Reload Command Lang
-reload-success-message: "<newline><red>Operator: Fendoris plugin config reloaded successfully.<reset><newline>"
+reload:
+  no-permission: "<red>You don't have permission to reload the plugin.</red>"
+  reload-success: "<newline><red>Operator: Fendoris plugin config reloaded successfully.<reset><newline>"
+  reload-broadcast: "<gray>[<red>Operator</red>: <white>%player%</white> reloaded the plugin]</gray>"
 
 # System: MOTD
 server-list-motd: "<reset>                      <gold><bold>Fendoris</bold></gold><reset><newline><reset>               <gray>Currently Whitelisted</gray><reset>"

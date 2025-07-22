@@ -11,7 +11,7 @@ commands:
   fendorisreload:
     description: Reload Fendoris Core
     usage: "§cUsage: /fendorisreload (Operator) (Reload Fendoris Core)"
-    permission: fendoris.reload
+    permission: fendoris.operator.reload
     permission-message: "§cYou don't have permission to reload the plugin."
   pvp:
     description: Toggle PvP on or off for yourself

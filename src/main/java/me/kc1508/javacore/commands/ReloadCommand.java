@@ -20,7 +20,11 @@ public class ReloadCommand implements CommandExecutor {
     private final ServerPingListener serverPingListener;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener, AllowedCommandListener allowedCommandListener, ServerPingListener serverPingListener) {
+    private static final String FALLBACK = "§cLanguage string invalid in config.";
+
+    public ReloadCommand(FendorisPlugin plugin, PlayerJoinQuitListener listener,
+                         AllowedCommandListener allowedCommandListener,
+                         ServerPingListener serverPingListener) {
         this.plugin = plugin;
         this.listener = listener;
         this.allowedCommandListener = allowedCommandListener;
@@ -28,9 +32,12 @@ public class ReloadCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
-        if (!sender.hasPermission("fendoris.reload")) {
-            sender.sendMessage("§cYou don't have permission to reload the plugin.");
+    public boolean onCommand(@NotNull CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             String @NotNull [] args) {
+        if (!sender.hasPermission("fendoris.operator.reload")) {
+            sendMessageRaw(sender, "reload.no-permission");
             return true;
         }
 
@@ -40,9 +47,7 @@ public class ReloadCommand implements CommandExecutor {
         serverPingListener.reload();
 
         if (plugin.getTabListManager() != null) {
-            // Ensure teams exist on reload before restarting tablist
             plugin.getTabListManager().ensureTeamsExist();
-
             plugin.getTabListManager().stop();
             plugin.getTabListManager().reloadConfigSettings();
 
@@ -51,27 +56,31 @@ public class ReloadCommand implements CommandExecutor {
             }
         }
 
-        sendConfigMessageOrError(sender, "reload-success-message");
+        sendMessageRaw(sender, "reload.reload-success");
 
         String senderName = (sender instanceof Player p) ? p.getName() : "Console";
 
-        String broadcastMessage = plugin.getConfig().getString("operator-reload-broadcast-message");
-        if (broadcastMessage == null || broadcastMessage.isBlank()) {
-            sendConfigMessageOrError(sender, "operator-reload-broadcast-message");
+        String configMessage = plugin.getConfig().getString("reload.reload-broadcast");
+
+        if (configMessage == null || configMessage.isBlank()) {
+            sender.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Feature: ReloadCommand] Missing or empty config key: reload.reload-broadcast");
         } else {
-            plugin.broadcastToOPsExceptSender(senderName,
-                    "operator-reload-broadcast-message",
-                    broadcastMessage,
-                    "%player%", senderName);
+            plugin.broadcastToOPsExceptSender(
+                    senderName,
+                    "reload.reload-broadcast",
+                    "%player%", senderName
+            );
         }
 
         return true;
     }
 
-    private void sendConfigMessageOrError(CommandSender sender, String key, String... replacements) {
+    private void sendMessageRaw(CommandSender sender, String key, String... replacements) {
         String rawMessage = plugin.getConfig().getString(key);
         if (rawMessage == null || rawMessage.isBlank()) {
-            sender.sendMessage("§cERROR: Missing or empty config message for '" + key + "'!");
+            sender.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Feature: ReloadCommand] Missing or empty config key: " + key);
             return;
         }
 
@@ -83,6 +92,8 @@ public class ReloadCommand implements CommandExecutor {
                     rawMessage = rawMessage.replace(placeholder, replacement);
                 }
             }
+        } else {
+            plugin.getLogger().warning("[Feature: ReloadCommand] Replacement array length is not even!");
         }
 
         Component messageComponent = miniMessage.deserialize(rawMessage);
