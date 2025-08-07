@@ -49,6 +49,14 @@ public class ConfigValidator {
         checkString("system.pvp.attacker-disabled-message");
         checkString("system.pvp.victim-disabled-message");
 
+        // Session Code System
+        checkBoolean("session.enabled");
+        checkInt("session.code-length");
+        checkString("session.only-player-message");
+        checkString("session.usage-message");
+        checkString("session.disabled-message");
+        checkString("session.code-message");
+
         // Death Messages
         checkBoolean("death-message-enabled");
         checkString("death-message-prefix");

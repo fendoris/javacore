@@ -1,21 +1,15 @@
 package me.kc1508.javacore;
 
-import me.kc1508.javacore.commands.PvpCommand;
-import me.kc1508.javacore.commands.ReloadCommand;
-import me.kc1508.javacore.commands.SessionCommand;
-import me.kc1508.javacore.commands.SessionTabCompleter;
+import me.kc1508.javacore.commands.*;
+import me.kc1508.javacore.listeners.*;
+
 import me.kc1508.javacore.config.ConfigValidator;
-import me.kc1508.javacore.listeners.AllowedCommandListener;
-import me.kc1508.javacore.listeners.PlayerDeathListener;
-import me.kc1508.javacore.listeners.PlayerJoinQuitListener;
-import me.kc1508.javacore.listeners.ServerPingListener;
-import me.kc1508.javacore.listeners.PvpListener;
 import me.kc1508.javacore.tablist.TabListManager;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashSet; 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -73,8 +67,10 @@ public final class FendorisPlugin extends JavaPlugin {
                 new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener)
         );
 
-        Objects.requireNonNull(getCommand("session")).setExecutor(new SessionCommand(this));
-        Objects.requireNonNull(getCommand("session")).setTabCompleter(new SessionTabCompleter());
+        SessionCommand sessionCommand = new SessionCommand(this);
+        getServer().getPluginManager().registerEvents(new SessionListener(sessionCommand), this);
+        Objects.requireNonNull(getCommand("session")).setExecutor(sessionCommand);
+        Objects.requireNonNull(getCommand("session")).setTabCompleter(sessionCommand);
 
         tabListManager = new TabListManager(this);
 

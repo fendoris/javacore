@@ -3,8 +3,8 @@
 
 reload:
   no-permission: "<red>You don't have permission to reload the plugin.</red>"
-  reload-success: "<newline><red>Operator: Fendoris plugin config reloaded successfully.<reset><newline>"
-  reload-broadcast: "<gray>[<red>Operator</red>: <white>%player%</white> reloaded the plugin]</gray>"
+  reload-success: "<newline><gold>Operator: Fendoris plugin config reloaded successfully.<reset><newline>"
+  reload-broadcast: "<gray>[<gold>Operator</gold>: <white>%player%</white> reloaded the plugin]</gray>"
 
 # System: MOTD
 server-list-motd: "<reset>                      <gold><bold>Fendoris</bold></gold><reset><newline><reset>               <gray>Currently Whitelisted</gray><reset>"
@@ -20,8 +20,8 @@ private-join-message: "<newline><color:#38aa56>Hey, %player%! Looks like you suc
 public-join-message: "<gray>%player% connected</gray><reset>"
 public-quit-message: "<gray>%player% disconnected</gray><reset>"
 
-public-operator-join-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>connected</gray><reset>"
-public-operator-quit-message: "<reset><red><hover:show_text:\"<red>This player is an Operator</red>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></red> <gray>disconnected</gray><reset>"
+public-operator-join-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>connected</gray><reset>"
+public-operator-quit-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>disconnected</gray><reset>"
 
 # System: PvP
 system.pvp:
@@ -84,10 +84,14 @@ online-count-substitutions:
 tablist-testing-online-count: -1 # -1 or 0 to disable testing override, otherwise use a positive number
 
 # System: Session Code
-session-code-enabled: true
-session-code-length: 6  # 4-32 & Restart suggested
+session:
+  enabled: true
+  code-length: 6  # 4-32 & Restart suggested
 
-session-code-message: "<reset><newline><reset><red>Your session code is <red><bold>%session_code%<reset><red>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Operator may ask for for this.<reset><reset><newline><reset>"
+  only-player-message: "<red>Only players can use this command.<reset>"
+  usage-message: "<red>Usage: /session (Shows your current Session Code)<reset>"
+  disabled-message: "<red>The Session Code system is currently disabled.<reset>"
+  code-message: "<reset><newline><reset><red>Your session code is <click:suggest_command:'%session_code%'><red><bold>%session_code%</bold><red></click>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Operator may ask for for this.<reset><reset><newline><reset>"
 
 # System: Command Whitelist
 command-whitelist-enabled: true
