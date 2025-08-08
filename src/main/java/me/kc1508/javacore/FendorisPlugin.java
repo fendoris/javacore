@@ -46,6 +46,8 @@ public final class FendorisPlugin extends JavaPlugin {
 
         new ConfigValidator(this).validate();
 
+        tabListManager = new TabListManager(this);
+
         playerListener = new PlayerJoinQuitListener(this);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
@@ -72,7 +74,14 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("session")).setExecutor(sessionCommand);
         Objects.requireNonNull(getCommand("session")).setTabCompleter(sessionCommand);
 
-        tabListManager = new TabListManager(this);
+        SpawnCommand spawnCommand = new SpawnCommand(this);
+        Objects.requireNonNull(getCommand("spawn")).setExecutor(spawnCommand);
+        Objects.requireNonNull(getCommand("spawn")).setTabCompleter(spawnCommand);
+        Objects.requireNonNull(getCommand("sendtospawn")).setExecutor(spawnCommand);
+        Objects.requireNonNull(getCommand("sendtospawn")).setTabCompleter(spawnCommand);
+
+        SetSpawnCommand setSpawnCommand = new SetSpawnCommand(this);
+        Objects.requireNonNull(getCommand("setspawn")).setExecutor(setSpawnCommand);
 
         // Move ensureTeamsExist() call here, AFTER TabListManager is instantiated
         tabListManager.ensureTeamsExist();

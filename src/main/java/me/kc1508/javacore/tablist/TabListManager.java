@@ -248,12 +248,6 @@ public class TabListManager {
         return String.join("\n", lines);
     }
 
-    public void reloadConfigSettings() {
-        loadOnlineCountSubstitutions();
-        colorsSet = false;
-        ensureTeamsExist();
-    }
-
     public void clearSessionCode(UUID playerId) {
         sessionCodes.remove(playerId);
     }

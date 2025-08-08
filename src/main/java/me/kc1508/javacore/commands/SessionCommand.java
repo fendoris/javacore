@@ -41,7 +41,7 @@ public class SessionCommand implements CommandExecutor, TabCompleter {
 
         String sessionCode = sessionCodes.get(player.getUniqueId());
         plugin.getLogger().info("Session code for " + player.getName() + ": " + sessionCode);
-        sendMessageToPlayer(player, "session.code-message", "%session_code%", sessionCode);
+        sendMessageToPlayer(player, "session.code-message", "%session_code%", sessionCode == null ? "" : sessionCode);
         return true;
     }
 

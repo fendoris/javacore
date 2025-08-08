@@ -22,6 +22,7 @@ public class PvpListener implements Listener {
 
     private final PvpCommand pvpCommand;
 
+    private static final long MESSAGE_COOLDOWN_MS = 1500L;
     private static final String FALLBACK = "§cLanguage string invalid in config.";
 
     public PvpListener(FendorisPlugin plugin, PvpCommand pvpCommand) {
@@ -31,61 +32,51 @@ public class PvpListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageByEntityEvent event) {
-        if (!plugin.isPvpToggleEnabled()) return;
-        if (!(event.getEntity() instanceof Player victim) || !(event.getDamager() instanceof Player attacker)) return;
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (!(event.getEntity() instanceof Player victim)) return;
+        if (!(event.getDamager() instanceof Player attacker)) return;
 
-        UUID victimId = victim.getUniqueId();
-        UUID attackerId = attacker.getUniqueId();
+        UUID attackerUuid = attacker.getUniqueId();
+        UUID victimUuid = victim.getUniqueId();
 
-        boolean victimAllows = plugin.getPvpEnabledPlayers().contains(victimId);
-        boolean attackerAllows = plugin.getPvpEnabledPlayers().contains(attackerId);
+        boolean attackerHasPvP = plugin.getPvpEnabledPlayers().contains(attackerUuid);
+        boolean victimHasPvP = plugin.getPvpEnabledPlayers().contains(victimUuid);
 
-        if (!victimAllows || !attackerAllows) {
+        // If attacker has PvP disabled
+        if (!attackerHasPvP) {
+            sendConfigMessageWithFallback(attacker, "system.pvp.attacker-disabled-message", attackerMessageCooldowns);
             event.setCancelled(true);
-
-            int cooldown = plugin.getPvpMessageCooldownSeconds();
-            long now = System.currentTimeMillis();
-
-            if (!attackerAllows) {
-                long lastMessage = attackerMessageCooldowns.getOrDefault(attackerId, 0L);
-                if (now - lastMessage >= cooldown * 1000L) {
-                    sendMiniMessage(attacker, "system.pvp.attacker-disabled-message");
-                    attackerMessageCooldowns.put(attackerId, now);
-                }
-                return;
-            }
-
-            long lastMessage = victimMessageCooldowns.getOrDefault(victimId, 0L);
-            if (now - lastMessage >= cooldown * 1000L) {
-                sendMiniMessage(attacker, "system.pvp.victim-disabled-message");
-                victimMessageCooldowns.put(victimId, now);
-            }
             return;
         }
 
-        // Update combat cooldowns
-        if (plugin.isPvpCombatCooldownEnabled()) {
-            pvpCommand.updateCombatTimestamp(attackerId);
-            pvpCommand.updateCombatTimestamp(victimId);
+        // If victim has PvP disabled
+        if (!victimHasPvP) {
+            sendConfigMessageWithFallback(attacker, "system.pvp.victim-disabled-message", victimMessageCooldowns);
+            event.setCancelled(true);
+            return;
         }
+
+        // Both have PvP enabled → register combat timestamps
+        pvpCommand.updateCombatTimestamp(attackerUuid);
+        pvpCommand.updateCombatTimestamp(victimUuid);
     }
 
-    private void sendMiniMessage(Player player, String key, String... replacements) {
-        String rawMessage = plugin.getConfig().getString(key);
-        if (rawMessage == null || rawMessage.isBlank()) {
-            player.sendMessage(FALLBACK);
-            return;
-        }
-
-        if (replacements.length % 2 == 0) {
-            for (int i = 0; i < replacements.length; i += 2) {
-                String placeholder = replacements[i];
-                String replacement = replacements[i + 1];
-                rawMessage = rawMessage.replace(placeholder, replacement);
+    private void sendConfigMessageWithFallback(Player player, String configKey, Map<UUID, Long> cooldownMap) {
+        UUID uuid = player.getUniqueId();
+        long now = System.currentTimeMillis();
+        long last = cooldownMap.getOrDefault(uuid, 0L);
+        if (now - last > MESSAGE_COOLDOWN_MS) {
+            try {
+                String msg = plugin.getConfig().getString(configKey);
+                if (msg == null || msg.isBlank()) {
+                    player.sendMessage(FALLBACK);
+                } else {
+                    player.sendMessage(miniMessage.deserialize(msg));
+                }
+            } catch (Exception e) {
+                player.sendMessage(FALLBACK);
             }
+            cooldownMap.put(uuid, now);
         }
-
-        player.sendMessage(miniMessage.deserialize(rawMessage));
     }
 }

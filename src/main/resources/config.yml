@@ -100,6 +100,41 @@ disallowed-command-message: "<red>Unknown or incomplete command.<reset>"
 allowed-commands:
   - pvp
   - session
+  - spawn
   - fendorisreload
+
+# Feature: Spawn
+spawn:
+  enabled: true
+
+  location-world: "world"   # World name
+  location-x: 0.5
+  location-y: 100.0
+  location-z: 0.5
+  location-yaw: 0.0
+  location-pitch: 0.0
+
+  cooldown: 3
+
+  # /spawn
+  only-player-message: "<red>Only players can use this command.<reset>"
+  usage-message: "<red>Usage: /spawn (Teleports you to the server spawn location)<reset>"
+  disabled-message: "<red>The Spawn system is currently disabled on this server.<reset>"
+  teleport-success-message: "<green>You have been teleported to the server spawn.<reset>"
+
+  # cooldown messages
+  cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
+  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /spawn again.<reset>"
+
+  # /sendtospawn
+  no-permission-message: "<red>You don't have permission to use this command.<reset>"
+  sendtospawn-usage: "<red>Usage: /sendtospawn <player><reset>"
+  player-not-online: "<red>That player is not online.<reset>"
+  sent-to-spawn-message: "<green>You have been sent to spawn by an operator.<reset>"
+  operator-sent-message: "<green>Sent %player% to spawn.<reset>"
+
+  # /setspawn
+  set-success: "<green>Spawn location saved to config.<reset>"
+
 
 # End of Config

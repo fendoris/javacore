@@ -11,11 +11,24 @@ commands:
   fendorisreload:
     description: Reload Fendoris Core
     usage: "§cUsage: /fendorisreload (Operator) (Reload Fendoris Core)"
-    permission: fendoris.operator.reload
-    permission-message: "§cYou don't have permission to reload the plugin."
+    permission: fendoris.operator
   pvp:
-    description: Toggle PvP on or off for yourself
-    usage: "§cUsage: /pvp (Toggle PvP on or off for yourself)"
+    description: Toggle PvP for yourself
+    usage: "/pvp"
+    permission: ""
   session:
-    description: Shows your current Session Code
-    usage: "§cUsage: /session (Shows your current Session Code)"
+    description: Show your session code
+    usage: "/session"
+    permission: ""
+  spawn:
+    description: Teleport to spawn
+    usage: "/spawn"
+    permission: ""
+  sendtospawn:
+    description: Send a player to spawn (operator)
+    usage: "/sendtospawn <player>"
+    permission: fendoris.operator
+  setspawn:
+    description: Set the server spawn to your location (operator)
+    usage: "/setspawn"
+    permission: fendoris.operator
