@@ -136,6 +136,19 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
+        if (command.getName().equalsIgnoreCase("sendtospawn")) {
+            if (args.length == 1) {
+                String partial = args[0].toLowerCase(Locale.ROOT);
+                List<String> matches = new ArrayList<>();
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    if (player.getName().toLowerCase(Locale.ROOT).startsWith(partial)) {
+                        matches.add(player.getName());
+                    }
+                }
+                return matches;
+            }
+            return Collections.emptyList();
+        }
         return Collections.emptyList();
     }
 }
