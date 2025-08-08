@@ -80,7 +80,26 @@ public class ConfigValidator {
         changed |= checkDoubleDefault("spawn.location-pitch", 0.0);
 
         changed |= checkIntDefault("spawn.cooldown", 0);
+        changed |= checkStringDefault("spawn.cooldown-message", "<red>You must wait %seconds%s before using this again.<reset>");
+        changed |= checkStringDefault("spawn.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /spawn again.<reset>");
 
+        // New delay system
+        changed |= checkIntDefault("spawn.teleport-delay-seconds", 0);
+        changed |= checkStringDefault("spawn.teleport-delay-start-message", "<yellow>Teleporting to spawn in %seconds%s... Don't move!<reset>");
+        changed |= checkStringDefault("spawn.teleport-cancelled-message", "<red>Teleport cancelled because you moved.<reset>");
+
+        // New particle settings
+        changed |= checkBooleanDefault("spawn.teleport-particles-enabled", true);
+        changed |= checkStringDefault("spawn.teleport-particle-name", "minecraft:portal");
+        changed |= checkIntDefault("spawn.teleport-particle-count", 20);
+
+        // New sound settings
+        changed |= checkBooleanDefault("spawn.teleport-sound-enabled", true);
+        changed |= checkStringDefault("spawn.teleport-sound-name", "minecraft:block.note_block.pling");
+        changed |= checkDoubleDefault("spawn.teleport-sound-volume", 1.0);
+        changed |= checkDoubleDefault("spawn.teleport-sound-pitch", 1.0);
+
+        // Messages
         changed |= checkStringDefault("spawn.only-player-message", "<red>Only players can use this command.<reset>");
         changed |= checkStringDefault("spawn.usage-message", "<red>Usage: /spawn (Teleports you to the server spawn location)<reset>");
         changed |= checkStringDefault("spawn.disabled-message", "<red>The Spawn system is currently disabled on this server.<reset>");
@@ -90,8 +109,8 @@ public class ConfigValidator {
         changed |= checkStringDefault("spawn.player-not-online", "<red>That player is not online.<reset>");
         changed |= checkStringDefault("spawn.sent-to-spawn-message", "<green>You have been sent to spawn by an operator.<reset>");
         changed |= checkStringDefault("spawn.operator-sent-message", "<green>Sent %player% to spawn.<reset>");
-        changed |= checkStringDefault("spawn.cooldown-message", "<red>You must wait %seconds%s before using this again.<reset>");
         changed |= checkStringDefault("spawn.set-success", "<green>Spawn location saved to config.<reset>");
+        changed |= checkStringDefault("spawn.teleport-already-in-progress-message", "<red>You are already teleporting to spawn!<reset>");
 
         if (changed) {
             plugin.saveConfig();

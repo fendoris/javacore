@@ -109,24 +109,34 @@ spawn:
   location-pitch: 0.0
 
   cooldown: 3
+  cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
+  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /spawn again.<reset>"
 
-  # /spawn
+  teleport-delay-seconds: 5
+  teleport-delay-start-message: "<yellow>Teleporting to spawn in %seconds%s... Don't move!<reset>"
+  teleport-cancelled-message: "<red>Teleport cancelled because you moved.<reset>"
+
+  teleport-particles-enabled: true
+  teleport-particle-name: "minecraft:portal"
+  teleport-particle-count: 20
+
+  teleport-sound-enabled: true
+  teleport-sound-name: "minecraft:block.note_block.pling"
+  teleport-sound-volume: 1.0
+  teleport-sound-pitch: 1.0
+
   only-player-message: "<red>Only players can use this command.<reset>"
   usage-message: "<red>Usage: /spawn (Teleports you to the server spawn location)<reset>"
   disabled-message: "<red>The Spawn system is currently disabled on this server.<reset>"
   teleport-success-message: "<green>You have been teleported to the server spawn.<reset>"
+  teleport-already-in-progress-message: "<red>You are already teleporting to spawn!<reset>"
 
-  cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
-  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /spawn again.<reset>"
-
-  # /sendtospawn
   no-permission-message: "<red>You don't have permission to use this command.<reset>"
   sendtospawn-usage: "<red>Usage: /sendtospawn <player><reset>"
   player-not-online: "<red>That player is not online.<reset>"
   sent-to-spawn-message: "<green>You have been sent to spawn by an operator.<reset>"
   operator-sent-message: "<green>Sent %player% to spawn.<reset>"
 
-  # /setspawn
   set-success: "<green>Spawn location saved to config.<reset>"
 
 allowed-commands:
