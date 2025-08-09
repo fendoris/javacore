@@ -32,3 +32,8 @@ commands:
     description: Set the server spawn to your location (operator)
     usage: "/setspawn"
     permission: fendoris.operator
+  hologram:
+    description: Manage holograms (operator)
+    usage: "/hologram"
+    permission: fendoris.operator.hologram
+    aliases: [hg]

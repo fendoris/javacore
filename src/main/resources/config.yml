@@ -145,4 +145,15 @@ allowed-commands:
   - spawn
   - fendorisreload
 
+
+hologram:
+  messages:
+    no-permission: "<red>You don't have permission to use /hologram.<reset>"
+    created: "<green>Created hologram <white>#%id%</white> at your location.<reset>"
+
+# Storage
+holograms: {}
+next-hologram: 0 # do not touch
+
+
 # End of Config

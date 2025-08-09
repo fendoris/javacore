@@ -2,6 +2,8 @@ package me.kc1508.javacore;
 
 import me.kc1508.javacore.commands.*;
 import me.kc1508.javacore.listeners.*;
+import me.kc1508.javacore.hologram.HologramManager;
+import me.kc1508.javacore.hologram.HologramCommand;
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
@@ -29,6 +31,9 @@ public final class FendorisPlugin extends JavaPlugin {
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private TabListManager tabListManager;
+
+    private HologramManager hologramManager;
+    public HologramManager getHologramManager() { return hologramManager; }
 
     @Override
     public void onEnable() {
@@ -82,6 +87,14 @@ public final class FendorisPlugin extends JavaPlugin {
 
         SetSpawnCommand setSpawnCommand = new SetSpawnCommand(this);
         Objects.requireNonNull(getCommand("setspawn")).setExecutor(setSpawnCommand);
+
+        hologramManager = new HologramManager(this);
+        hologramManager.loadFromConfig();
+
+        HologramCommand hologramCommand = new HologramCommand(this, hologramManager);
+        Objects.requireNonNull(getCommand("hologram")).setExecutor(hologramCommand);
+        Objects.requireNonNull(getCommand("hologram")).setTabCompleter(hologramCommand);
+
 
         // Move ensureTeamsExist() call here, AFTER TabListManager is instantiated
         tabListManager.ensureTeamsExist();

@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
+import me.kc1508.javacore.hologram.HologramManager;
 
 public class ReloadCommand implements CommandExecutor {
 
@@ -40,6 +41,10 @@ public class ReloadCommand implements CommandExecutor {
         // Reload config & validate
         plugin.reloadConfig();
         new me.kc1508.javacore.config.ConfigValidator(plugin).validate();
+
+        // Holograms: reload from config (despawn + respawn to avoid dupes)
+        me.kc1508.javacore.hologram.HologramManager hm = plugin.getHologramManager();
+        if (hm != null) hm.reload();
 
         // Reload listeners that need it
         allowedCommandListener.reloadBlockedCommands();
