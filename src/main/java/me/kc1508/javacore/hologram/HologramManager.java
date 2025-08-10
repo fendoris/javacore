@@ -41,8 +41,16 @@ public class HologramManager {
     }
 
     public void loadFromConfig() {
+        // Defer until worlds are loaded
+        if (Bukkit.getWorlds().isEmpty()) {
+            log.warning("[Hologram] No worlds loaded yet; deferring hologram spawn by 1 tick.");
+            Bukkit.getScheduler().runTask(plugin, this::loadFromConfig);
+            return;
+        }
+
         // Despawn any active we created to avoid duplication
         despawnAll();
+
         FileConfiguration cfg = plugin.getConfig();
         ConfigurationSection root = cfg.getConfigurationSection("holograms");
         if (root != null) {
@@ -77,11 +85,13 @@ public class HologramManager {
         active.clear();
     }
 
-    private Location sectionToLocation(ConfigurationSection sec) {
+    private @Nullable Location sectionToLocation(ConfigurationSection sec) {
         String worldName = sec.getString("location.world", "world");
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            world = Bukkit.getWorlds().get(0);
+            List<World> ws = Bukkit.getWorlds();
+            if (ws.isEmpty()) return null;
+            world = ws.get(0);
         }
         double x = sec.getDouble("location.x", 0.0);
         double y = sec.getDouble("location.y", 64.0);
@@ -153,6 +163,7 @@ public class HologramManager {
 
         // Transformation: translation + scale + rotation (yaw/pitch/roll in degrees)
         double s = props.getDouble("scale", 1.0);
+        if (s <= 0) s = 0.01;
         float sf = (float) s;
         Vector3f scale = new Vector3f(sf, sf, sf);
 
@@ -170,10 +181,8 @@ public class HologramManager {
         float pitch = (float) Math.toRadians(pitchDeg);
         float roll = (float) Math.toRadians(rollDeg);
 
-        // Use leftRotation for a simple rotation; rightRotation = identity
         Quaternionf left = new Quaternionf().rotationYXZ(yaw, pitch, roll);
         Quaternionf right = new Quaternionf();
-
         display.setTransformation(new Transformation(translation, left, scale, right));
     }
 
@@ -193,10 +202,8 @@ public class HologramManager {
                 int g = (int) ((val >> 8) & 0xFF);
                 int b = (int) (val & 0xFF);
                 try {
-                    // Available in modern Bukkit
                     return Color.fromARGB(a, r, g, b);
                 } catch (NoSuchMethodError err) {
-                    // Fallback: ARGB not supported; approximate via RGB (alpha ignored)
                     return Color.fromRGB(r, g, b);
                 }
             }
@@ -211,7 +218,11 @@ public class HologramManager {
 
     private void spawnFromSection(int id, ConfigurationSection sec) {
         Location loc = sectionToLocation(sec);
-        TextDisplay display = loc.getWorld().spawn(loc, TextDisplay.class, td -> {
+        if (loc == null) {
+            log.warning("[Hologram] Skipping spawn for #" + id + " — no worlds loaded yet.");
+            return;
+        }
+        TextDisplay display = Objects.requireNonNull(loc.getWorld()).spawn(loc, TextDisplay.class, td -> {
             applyTextAndBasicProps(td, sec);
             applyVisualProps(td, sec.getConfigurationSection("properties"));
             tagWithId(td, id);
@@ -256,10 +267,11 @@ public class HologramManager {
         Location dst = player.getLocation();
         if (!matchYawPitch) {
             Location current = sectionToLocation(sec);
-            dst.setYaw(current.getYaw());
-            dst.setPitch(current.getPitch());
+            if (current != null) {
+                dst.setYaw(current.getYaw());
+                dst.setPitch(current.getPitch());
+            }
         }
-        // Update config & entity
         writeLocation(sec, dst);
         Entity e = getOrRespawn(id, sec);
         if (e != null) e.teleport(dst);
@@ -275,7 +287,6 @@ public class HologramManager {
         if (e != null) e.remove();
         active.remove(id);
         cfg.set("holograms." + id, null);
-        // Do not change next-hologram per requirement
         plugin.saveConfig();
         return true;
     }
@@ -301,6 +312,7 @@ public class HologramManager {
             ConfigurationSection sec = root.getConfigurationSection(key);
             if (sec == null) continue;
             Location loc = sectionToLocation(sec);
+            if (loc == null) continue;
             String txt = sec.getString("text", "Example Text");
             out.add("#" + key + " • " + loc.getWorld().getName() + " " +
                     String.format("(%.1f, %.1f, %.1f)", loc.getX(), loc.getY(), loc.getZ()) +
@@ -321,5 +333,110 @@ public class HologramManager {
         }
         plugin.saveConfig();
         return true;
+    }
+
+    // --------- Phase 4 setters ---------
+
+    private @Nullable ConfigurationSection getProps(int id) {
+        FileConfiguration cfg = plugin.getConfig();
+        ConfigurationSection sec = cfg.getConfigurationSection("holograms." + id);
+        if (sec == null) return null;
+        ConfigurationSection props = sec.getConfigurationSection("properties");
+        if (props == null) props = sec.createSection("properties");
+        return props;
+    }
+
+    private boolean applyAfterSet(int id) {
+        FileConfiguration cfg = plugin.getConfig();
+        ConfigurationSection sec = cfg.getConfigurationSection("holograms." + id);
+        if (sec == null) return false;
+        Entity e = getOrRespawn(id, sec);
+        if (e instanceof TextDisplay td) {
+            applyTextAndBasicProps(td, sec);
+            applyVisualProps(td, sec.getConfigurationSection("properties"));
+        }
+        plugin.saveConfig();
+        return true;
+    }
+
+    public boolean setScale(int id, double value) {
+        if (value <= 0) value = 0.01D;
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        props.set("scale", value);
+        return applyAfterSet(id);
+    }
+
+    public boolean setBackground(int id, String hex) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        if (parseColor(hex) == null) return false;
+        props.set("background", hex);
+        return applyAfterSet(id);
+    }
+
+    public boolean setTextOpacity(int id, int opacity) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        if (opacity < 0) opacity = 0;
+        if (opacity > 255) opacity = 255;
+        props.set("text_opacity", opacity);
+        return applyAfterSet(id);
+    }
+
+    public boolean setAlignment(int id, String v) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        try {
+            TextDisplay.TextAlignment.valueOf(v.toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+        props.set("alignment", v.toLowerCase(java.util.Locale.ROOT));
+        return applyAfterSet(id);
+    }
+
+    public boolean setBillboard(int id, String v) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        try {
+            Billboard.valueOf(v.toUpperCase(java.util.Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+        props.set("billboard", v.toLowerCase(java.util.Locale.ROOT));
+        return applyAfterSet(id);
+    }
+
+    public boolean setShadow(int id, boolean v) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        props.set("shadow", v);
+        return applyAfterSet(id);
+    }
+
+    public boolean setSeeThrough(int id, boolean v) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        props.set("see_through", v);
+        return applyAfterSet(id);
+    }
+
+    public boolean setTranslation(int id, double x, double y, double z) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        ConfigurationSection t = props.getConfigurationSection("translation");
+        if (t == null) t = props.createSection("translation");
+        t.set("x", x); t.set("y", y); t.set("z", z);
+        return applyAfterSet(id);
+    }
+
+    public boolean setRotation(int id, double yaw, double pitch, double roll) {
+        ConfigurationSection props = getProps(id);
+        if (props == null) return false;
+        ConfigurationSection r = props.getConfigurationSection("rotation");
+        if (r == null) r = props.createSection("rotation");
+        r.set("yaw", yaw); r.set("pitch", pitch); r.set("roll", roll);
+        return applyAfterSet(id);
     }
 }

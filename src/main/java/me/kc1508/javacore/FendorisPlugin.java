@@ -26,7 +26,7 @@ public final class FendorisPlugin extends JavaPlugin {
     private AllowedCommandListener allowedCommandListener;
     private ServerPingListener serverPingListener;
 
-    private static final boolean devModeConfigReset = true;
+    private static final boolean devModeConfigReset = false;
 
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
