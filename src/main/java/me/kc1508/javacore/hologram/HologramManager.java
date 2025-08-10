@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.logging.Logger;
 
 public class HologramManager {
+    private static final String SCOREBOARD_TAG = "fendoris_hologram";
+
     private final FendorisPlugin plugin;
     private final MiniMessage mini;
     private final Logger log;
@@ -48,8 +50,10 @@ public class HologramManager {
             return;
         }
 
-        // Despawn any active we created to avoid duplication
+        // Clear our current runtime set, then purge any leftovers from prior runs
         despawnAll();
+        int purged = purgeAllTagged();
+        if (purged > 0) log.info("[Hologram] Purged " + purged + " leftover TextDisplay(s).");
 
         FileConfiguration cfg = plugin.getConfig();
         ConfigurationSection root = cfg.getConfigurationSection("holograms");
@@ -85,13 +89,31 @@ public class HologramManager {
         active.clear();
     }
 
+    /** Removes ANY TextDisplay we ever created (by PDC id or scoreboard tag) across all worlds. */
+    public int purgeAllTagged() {
+        int removed = 0;
+        for (World w : Bukkit.getWorlds()) {
+            for (TextDisplay td : w.getEntitiesByClass(TextDisplay.class)) {
+                PersistentDataContainer pdc = td.getPersistentDataContainer();
+                Integer hid = pdc.get(pdcKey, PersistentDataType.INTEGER);
+                if (hid != null || td.getScoreboardTags().contains(SCOREBOARD_TAG)) {
+                    td.remove();
+                    removed++;
+                }
+            }
+        }
+        // We just removed everything we might track; clear runtime map.
+        active.clear();
+        return removed;
+    }
+
     private @Nullable Location sectionToLocation(ConfigurationSection sec) {
         String worldName = sec.getString("location.world", "world");
         World world = Bukkit.getWorld(worldName);
         if (world == null) {
             List<World> ws = Bukkit.getWorlds();
             if (ws.isEmpty()) return null;
-            world = ws.get(0);
+            world = ws.getFirst(); // Java 21+
         }
         double x = sec.getDouble("location.x", 0.0);
         double y = sec.getDouble("location.y", 64.0);
@@ -127,14 +149,14 @@ public class HologramManager {
             display.setShadowed(props.getBoolean("shadow", true));
             display.setSeeThrough(props.getBoolean("see_through", false));
 
-            String align = props.getString("alignment", "center").toUpperCase(Locale.ROOT);
+            String align = props.getString("alignment", "center").toUpperCase(java.util.Locale.ROOT);
             try {
                 display.setAlignment(TextDisplay.TextAlignment.valueOf(align));
             } catch (IllegalArgumentException ignored) {
                 display.setAlignment(TextDisplay.TextAlignment.CENTER);
             }
 
-            String billboard = props.getString("billboard", "center").toUpperCase(Locale.ROOT);
+            String billboard = props.getString("billboard", "center").toUpperCase(java.util.Locale.ROOT);
             try {
                 display.setBillboard(Billboard.valueOf(billboard));
             } catch (IllegalArgumentException ignored) {
@@ -154,12 +176,9 @@ public class HologramManager {
         }
 
         // Text opacity 0..255
-        int opacity = props.getInt("text_opacity", -1);
-        if (opacity >= 0) {
-            if (opacity < 0) opacity = 0;
-            if (opacity > 255) opacity = 255;
-            display.setTextOpacity((byte) (opacity & 0xFF));
-        }
+        int raw = props.getInt("text_opacity", 255);
+        int clamped = Math.min(255, Math.max(0, raw));
+        display.setTextOpacity((byte) clamped);
 
         // Transformation: translation + scale + rotation (yaw/pitch/roll in degrees)
         double s = props.getDouble("scale", 1.0);
@@ -214,6 +233,7 @@ public class HologramManager {
     private void tagWithId(TextDisplay display, int id) {
         PersistentDataContainer pdc = display.getPersistentDataContainer();
         pdc.set(pdcKey, PersistentDataType.INTEGER, id);
+        display.addScoreboardTag(SCOREBOARD_TAG);
     }
 
     private void spawnFromSection(int id, ConfigurationSection sec) {

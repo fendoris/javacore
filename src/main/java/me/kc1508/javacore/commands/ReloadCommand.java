@@ -9,7 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import me.kc1508.javacore.hologram.HologramManager;
+import me.kc1508.javacore.hologram.*;
 
 public class ReloadCommand implements CommandExecutor {
 

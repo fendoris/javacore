@@ -2,8 +2,7 @@ package me.kc1508.javacore;
 
 import me.kc1508.javacore.commands.*;
 import me.kc1508.javacore.listeners.*;
-import me.kc1508.javacore.hologram.HologramManager;
-import me.kc1508.javacore.hologram.HologramCommand;
+import me.kc1508.javacore.hologram.*;
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
@@ -108,6 +107,12 @@ public final class FendorisPlugin extends JavaPlugin {
     public void onDisable() {
         getLogger().info(ANSI_RED + "JavaCore Plugin Stopping" + ANSI_RESET);
         if (tabListManager != null) tabListManager.stop();
+
+        // remove holograms so if plugin fails or isn't loaded they don't persist
+        if (hologramManager != null) {
+            int removed = hologramManager.purgeAllTagged();
+            getLogger().info("[Hologram] Purged " + removed + " TextDisplay(s).");
+        }
     }
 
     @SuppressWarnings("unused")

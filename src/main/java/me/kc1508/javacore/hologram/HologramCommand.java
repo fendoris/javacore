@@ -230,6 +230,12 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                     }
                 }
             }
+            case "cleanup": {
+                if (!checkOpPerm(sender)) return true;
+                int removed = manager.purgeAllTagged();
+                sender.sendMessage(mini.deserialize("<green>Removed <yellow>" + removed + "</yellow> hologram display(s).</green>"));
+                return true;
+            }
             default: {
                 help(sender);
                 return true;
@@ -238,7 +244,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
     }
 
     private void help(CommandSender sender) {
-        sender.sendMessage(mini.deserialize("<gray>/hologram create | delete <id> | list | bring <id> | set <id> ...</gray>"));
+        sender.sendMessage(mini.deserialize("<gray>/hologram create | delete <id> | list | bring <id> | set <id> ... | cleanup</gray>"));
     }
     private void helpSet(CommandSender sender) {
         sender.sendMessage(mini.deserialize("<gray>Usage:</gray>"));
@@ -258,7 +264,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         if (args.length == 1) {
             List<String> base = new ArrayList<>();
-            base.add("create"); base.add("delete"); base.add("list"); base.add("bring"); base.add("set");
+            base.add("create"); base.add("delete"); base.add("list"); base.add("bring"); base.add("set"); base.add("cleanup");
             return base;
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
