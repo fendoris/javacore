@@ -116,6 +116,63 @@ public class ConfigValidator {
             plugin.saveConfig();
             plugin.getLogger().info(PREFIX + "Missing/invalid config values set to defaults and saved.");
         }
+
+// Hologram messages (Phase 4/5)
+        changed |= checkStringDefault("hologram.messages.no-permission", "<red>You don't have permission to use /hologram.</red>");
+        changed |= checkStringDefault("hologram.messages.only-player", "<red>Only players can use this command.</red>");
+        // Help
+        changed |= checkStringDefault("hologram.messages.help.main", "<gray>/hologram create | delete <id> | list | bring <id> | set <id> ... | cleanup</gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.header", "<gray>Usage:</gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.text", "<gray>/hologram set <id> text <message...></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.scale", "<gray>/hologram set <id> scale <number></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.background", "<gray>/hologram set <id> background <#AARRGGBB|#RRGGBB></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.text_opacity", "<gray>/hologram set <id> text_opacity <0-255></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.alignment", "<gray>/hologram set <id> alignment <left|center|right></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.billboard", "<gray>/hologram set <id> billboard <center|fixed|vertical|horizontal></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.shadow", "<gray>/hologram set <id> shadow <true|false></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.see_through", "<gray>/hologram set <id> see_through <true|false></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.translation", "<gray>/hologram set <id> translation <x> <y> <z></gray>");
+        changed |= checkStringDefault("hologram.messages.help.set.rotation", "<gray>/hologram set <id> rotation <yaw> <pitch> <roll></gray>");
+        // Usage
+        changed |= checkStringDefault("hologram.messages.usage.delete", "<red>Usage: /hologram delete <id></red>");
+        changed |= checkStringDefault("hologram.messages.usage.bring", "<red>Usage: /hologram bring <id></red>");
+        changed |= checkStringDefault("hologram.messages.usage.scale", "<red>Usage: /hologram set <id> scale <number></red>");
+        changed |= checkStringDefault("hologram.messages.usage.text_opacity", "<red>Usage: /hologram set <id> text_opacity <0-255></red>");
+        changed |= checkStringDefault("hologram.messages.usage.translation", "<red>Usage: /hologram set <id> translation <x> <y> <z></red>");
+        changed |= checkStringDefault("hologram.messages.usage.rotation", "<red>Usage: /hologram set <id> rotation <yaw> <pitch> <roll></red>");
+        changed |= checkStringDefault("hologram.messages.usage.shadow", "<red>Usage: /hologram set <id> shadow <true|false></red>");
+        changed |= checkStringDefault("hologram.messages.usage.see_through", "<red>Usage: /hologram set <id> see_through <true|false></red>");
+        // Create/List/Generic
+        changed |= checkStringDefault("hologram.messages.created", "<green>Created hologram <white>#%id%</white> at your location.</green>");
+        changed |= checkStringDefault("hologram.messages.list-header", "<gold>Holograms:</gold>");
+        changed |= checkStringDefault("hologram.messages.list-empty", "<gray>No holograms configured.</gray>");
+        changed |= checkStringDefault("hologram.messages.id-not-number", "<red>ID must be a number.</red>");
+        changed |= checkStringDefault("hologram.messages.not-found", "<red>Hologram <white>#%id%</white> not found.</red>");
+        changed |= checkStringDefault("hologram.messages.unknown-property", "<red>Unknown property.</red>");
+        // Bring/Delete
+        changed |= checkStringDefault("hologram.messages.brought", "<green>Brought hologram <white>#%id%</white> to your location.</green>");
+        changed |= checkStringDefault("hologram.messages.deleted", "<green>Deleted hologram <white>#%id%</white>.</green>");
+        // Setters
+        changed |= checkStringDefault("hologram.messages.set.text.ok", "<green>Updated text for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.scale.ok", "<green>Scale set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.scale.fail", "<red>Failed to set scale for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.set.background.ok", "<green>Background set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.background.invalid", "<red>Invalid color. Use #RRGGBB or #AARRGGBB.</red>");
+        changed |= checkStringDefault("hologram.messages.set.text_opacity.ok", "<green>Text opacity set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.text_opacity.fail", "<red>Failed to set text opacity for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.set.alignment.ok", "<green>Alignment set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.alignment.invalid", "<red>Alignment must be left, center, or right.</red>");
+        changed |= checkStringDefault("hologram.messages.set.billboard.ok", "<green>Billboard set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.billboard.invalid", "<red>Billboard must be center, fixed, vertical, or horizontal.</red>");
+        changed |= checkStringDefault("hologram.messages.set.shadow.ok", "<green>Shadow set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.shadow.fail", "<red>Failed to set shadow for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.set.see_through.ok", "<green>See-through set to <white>%value%</white> for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.see_through.fail", "<red>Failed to set see-through for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.set.translation.ok", "<green>Translation set for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.translation.fail", "<red>Failed to set translation for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.set.rotation.ok", "<green>Rotation set for <white>#%id%</white>.</green>");
+        changed |= checkStringDefault("hologram.messages.set.rotation.fail", "<red>Failed to set rotation for <white>#%id%</white>.</red>");
+        changed |= checkStringDefault("hologram.messages.cleanup.removed", "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>");
     }
 
     private boolean checkBooleanDefault(String path, boolean defaultValue) {

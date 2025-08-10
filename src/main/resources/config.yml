@@ -1,16 +1,35 @@
-# https://github.com/kchaney1508
-# https://webui.advntr.dev/
+# =========================================================
+#  Fendoris JavaCore Configuration
+#  Repo: https://github.com/kchaney1508
+#  MiniMessage playground: https://webui.advntr.dev/
+# =========================================================
+
+# ---------------------------------------------------------
+# Reload / Administration
+# ---------------------------------------------------------
 
 reload:
   no-permission: "<red>You don't have permission to reload the plugin.</red>"
   reload-success: "<newline><gold>Operator: Fendoris plugin config reloaded successfully.<reset><newline>"
   reload-broadcast: "<gray>[<gold>Operator</gold>: <white>%player%</white> reloaded the plugin]</gray>"
 
-# System: MOTD
+# Broadcast command use to Operators
+operator-command-logs-enabled: true
+operator-pvp-toggle-on: "<gray><i>[%player%: toggled their PvP on]<reset>"
+operator-pvp-toggle-off: "<gray><i>[%player%: toggled their PvP off]<reset>"
+operator-reload-broadcast-message: "<gray><i>[%player%: Fendoris plugin config reloaded successfully]<reset>"
+
+# ---------------------------------------------------------
+# Server List (MOTD)
+# ---------------------------------------------------------
+
 server-list-motd: "<reset>                      <gold><bold>Fendoris</bold></gold><reset><newline><reset>               <gray>Currently Whitelisted</gray><reset>"
 server-list-ping-logs: true # Logs server list ping requests to console
 
-# System: Welcome / Join / Quit
+# ---------------------------------------------------------
+# Welcome / Join / Quit
+# ---------------------------------------------------------
+
 private-join-message-enabled: true
 public-join-message-enabled: true
 public-quit-message-enabled: true
@@ -23,7 +42,10 @@ public-quit-message: "<gray>%player% disconnected</gray><reset>"
 public-operator-join-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>connected</gray><reset>"
 public-operator-quit-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>disconnected</gray><reset>"
 
-# System: PvP
+# ---------------------------------------------------------
+# PvP System
+# ---------------------------------------------------------
+
 system.pvp:
   enabled: true
 
@@ -49,18 +71,17 @@ system.pvp:
   operator-pvp-toggle-off: "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <red>off</red>]</gray>"
   operator-pvp-toggle-on: "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>"
 
-# System: Death Messages
+# ---------------------------------------------------------
+# Death Messages
+# ---------------------------------------------------------
+
 death-message-enabled: true
 death-message-prefix: "<i>Death:"
 
-# System: Broadcast Command use to Operators
-operator-command-logs-enabled: true
+# ---------------------------------------------------------
+# Tablist
+# ---------------------------------------------------------
 
-operator-pvp-toggle-on: "<gray><i>[%player%: toggled their PvP on]<reset>"
-operator-pvp-toggle-off: "<gray><i>[%player%: toggled their PvP off]<reset>"
-operator-reload-broadcast-message: "<gray><i>[%player%: Fendoris plugin config reloaded successfully]<reset>"
-
-# System: Tablist
 tablist-enabled: true # Restart suggested
 tablist-update-interval-seconds: 3 # Suggested for Performance
 tablist-padding-spaces: 2 # Num of padding spaces left and right of each header/footer line
@@ -83,7 +104,10 @@ online-count-substitutions:
 
 tablist-testing-online-count: -1 # -1 or 0 to disable testing override, otherwise use a positive number
 
-# System: Session Code
+# ---------------------------------------------------------
+# Session Codes
+# ---------------------------------------------------------
+
 session:
   enabled: true
   code-length: 6  # 4-32 & Restart suggested
@@ -93,11 +117,23 @@ session:
   disabled-message: "<red>The Session Code system is currently disabled.<reset>"
   code-message: "<reset><newline><reset><red>Your session code is <click:suggest_command:'%session_code%'><red><bold>%session_code%</bold><red></click>, reconnecting will generate another one. If you are reporting a server bug or client-sided issue, an Operator may ask for for this.<reset><reset><newline><reset>"
 
-# System: Command Whitelist
+# ---------------------------------------------------------
+# Command Whitelist
+# ---------------------------------------------------------
+
 command-whitelist-enabled: true
 disallowed-command-message: "<red>Unknown or incomplete command.<reset>"
 
-# system: Spawn, SetSpawn, SendToSpawn
+allowed-commands:
+  - pvp
+  - session
+  - spawn
+  - fendorisreload
+
+# ---------------------------------------------------------
+# Spawn / SetSpawn / SendToSpawn
+# ---------------------------------------------------------
+
 spawn:
   enabled: true
 
@@ -139,21 +175,94 @@ spawn:
 
   set-success: "<green>Spawn location saved to config.<reset>"
 
-allowed-commands:
-  - pvp
-  - session
-  - spawn
-  - fendorisreload
-
+# ---------------------------------------------------------
+# Holograms
+# ---------------------------------------------------------
 
 hologram:
   messages:
-    no-permission: "<red>You don't have permission to use /hologram.<reset>"
-    created: "<green>Created hologram <white>#%id%</white> at your location.<reset>"
+    no-permission: "<red>You don't have permission to use this command.<reset>"
+    only-player: "<red>Only players can use this command.<reset>"
 
+    help:
+      main: "<gray>/hologram create | delete <id> | list | bring <id> | set <id> ... | cleanup</gray>"
+      set:
+        header: "<gray>Usage:</gray>"
+        text: "<gray>/hologram set <id> text <message...></gray>"
+        scale: "<gray>/hologram set <id> scale <number></gray>"
+        background: "<gray>/hologram set <id> background <#AARRGGBB|#RRGGBB></gray>"
+        text_opacity: "<gray>/hologram set <id> text_opacity <0-255></gray>"
+        alignment: "<gray>/hologram set <id> alignment <left|center|right></gray>"
+        billboard: "<gray>/hologram set <id> billboard <center|fixed|vertical|horizontal></gray>"
+        shadow: "<gray>/hologram set <id> shadow <true|false></gray>"
+        see_through: "<gray>/hologram set <id> see_through <true|false></gray>"
+        translation: "<gray>/hologram set <id> translation <x> <y> <z></gray>"
+        rotation: "<gray>/hologram set <id> rotation <yaw> <pitch> <roll></gray>"
+
+    usage:
+      delete: "<red>Usage: /hologram delete <id></red>"
+      bring: "<red>Usage: /hologram bring <id></red>"
+      scale: "<red>Usage: /hologram set <id> scale <number></red>"
+      text_opacity: "<red>Usage: /hologram set <id> text_opacity <0-255></red>"
+      translation: "<red>Usage: /hologram set <id> translation <x> <y> <z></red>"
+      rotation: "<red>Usage: /hologram set <id> rotation <yaw> <pitch> <roll></red>"
+      shadow: "<red>Usage: /hologram set <id> shadow <true|false></red>"
+      see_through: "<red>Usage: /hologram set <id> see_through <true|false></red>"
+
+    created: "<green>Created hologram <white>#%id%</white> at your location.</green>"
+    list-header: "<gold>Holograms:</gold>"
+    list-empty: "<gray>No holograms configured.</gray>"
+    id-not-number: "<red>ID must be a number.</red>"
+    not-found: "<red>Hologram <white>#%id%</white> not found.</red>"
+    unknown-property: "<red>Unknown property.</red>"
+
+    brought: "<green>Brought hologram <white>#%id%</white> to your location.</green>"
+    deleted: "<green>Deleted hologram <white>#%id%</white>.</green>"
+
+    set:
+      text:
+        ok: "<green>Updated text for <white>#%id%</white>.</green>"
+      scale:
+        ok: "<green>Scale set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set scale for <white>#%id%</white>.</red>"
+      background:
+        ok: "<green>Background set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        invalid: "<red>Invalid color. Use #RRGGBB or #AARRGGBB.</red>"
+      text_opacity:
+        ok: "<green>Text opacity set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set text opacity for <white>#%id%</white>.</red>"
+      alignment:
+        ok: "<green>Alignment set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        invalid: "<red>Alignment must be left, center, or right.</red>"
+      billboard:
+        ok: "<green>Billboard set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        invalid: "<red>Billboard must be center, fixed, vertical, or horizontal.</red>"
+      shadow:
+        ok: "<green>Shadow set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set shadow for <white>#%id%</white>.</red>"
+      see_through:
+        ok: "<green>See-through set to <white>%value%</white> for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set see-through for <white>#%id%</white>.</red>"
+      translation:
+        ok: "<green>Translation set for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set translation for <white>#%id%</white>.</red>"
+      rotation:
+        ok: "<green>Rotation set for <white>#%id%</white>.</green>"
+        fail: "<red>Failed to set rotation for <white>#%id%</white>.</red>"
+
+    cleanup:
+      removed: "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>"
+
+# ---------------------------------------------------------
 # Storage
+# ---------------------------------------------------------
+
 holograms: {}
-next-hologram: 0 # do not touch
 
+# ---------------------------------------------------------
+# Do Not Edit Below
+# ---------------------------------------------------------
 
-# End of Config
+next-hologram: 0
+
+# ----------------------------- End of Config -------------

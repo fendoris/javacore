@@ -6,12 +6,11 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class HologramCommand implements CommandExecutor, TabCompleter {
+    private static final String FALLBACK = "§cLanguage string invalid in config.";
+
     private final FendorisPlugin plugin;
     private final HologramManager manager;
     private final MiniMessage mini = MiniMessage.miniMessage();
@@ -21,15 +20,29 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
         this.manager = manager;
     }
 
-    private boolean checkOpPerm(CommandSender sender) {
-        if (sender.hasPermission("fendoris.operator.hologram") || sender.hasPermission("fendoris.operator")) {
-            return true;
+    private void sendMsg(CommandSender sender, String key, String... kv) {
+        String raw = plugin.getConfig().getString(key);
+        if (raw == null || raw.isBlank()) {
+            sender.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Hologram] Missing config key: " + key);
+            return;
         }
-        sender.sendMessage(mini.deserialize(plugin.getConfig().getString(
-                "hologram.messages.no-permission",
-                "<red>You don't have permission to use /hologram.</red>"
-        )));
-        return false;
+        // simple replacements: "%key%" -> value
+        if (kv != null && kv.length % 2 == 0) {
+            for (int i = 0; i < kv.length; i += 2) {
+                raw = raw.replace(kv[i], kv[i + 1]);
+            }
+        }
+        try {
+            sender.sendMessage(mini.deserialize(raw));
+        } catch (Exception ex) {
+            sender.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Hologram] Invalid MiniMessage for key: " + key + " -> " + ex.getMessage());
+        }
+    }
+
+    private boolean hasOpPerm(CommandSender sender) {
+        return sender.hasPermission("fendoris.operator.hologram") || sender.hasPermission("fendoris.operator");
     }
 
     @Override
@@ -39,159 +52,180 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        String sub = args[0].toLowerCase();
+        String sub = args[0].toLowerCase(Locale.ROOT);
         switch (sub) {
             case "create": {
                 if (!(sender instanceof Player p)) {
-                    sender.sendMessage("Must be a player.");
+                    sendMsg(sender, "hologram.messages.only-player");
                     return true;
                 }
-                if (!checkOpPerm(sender)) return true;
-                String text = args.length >= 2 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "New Hologram";
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
+                String text = (args.length >= 2) ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "New Hologram";
                 int id = manager.createAtPlayer(p, text);
-                sender.sendMessage(mini.deserialize(plugin.getConfig().getString(
-                        "hologram.messages.created",
-                        "<green>Created hologram <white>#%id%</white> at your location.</green>"
-                ).replace("%id%", String.valueOf(id))));
+                sendMsg(sender, "hologram.messages.created", "%id%", String.valueOf(id));
                 return true;
             }
             case "delete": {
-                if (!checkOpPerm(sender)) return true;
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
                 if (args.length < 2) {
-                    sender.sendMessage(mini.deserialize("<red>Usage: /hologram delete <id></red>"));
+                    sendMsg(sender, "hologram.messages.usage.delete");
                     return true;
                 }
                 try {
                     int id = Integer.parseInt(args[1]);
                     boolean ok = manager.delete(id);
-                    sender.sendMessage(mini.deserialize(ok ? "<green>Deleted hologram #" + id + ".</green>"
-                            : "<red>Hologram #" + id + " not found.</red>"));
+                    if (ok) sendMsg(sender, "hologram.messages.deleted", "%id%", String.valueOf(id));
+                    else sendMsg(sender, "hologram.messages.not-found", "%id%", String.valueOf(id));
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(mini.deserialize("<red>ID must be a number.</red>"));
+                    sendMsg(sender, "hologram.messages.id-not-number");
                 }
                 return true;
             }
             case "list": {
-                if (!checkOpPerm(sender)) return true;
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
                 List<String> lines = manager.listSummary();
                 if (lines.isEmpty()) {
-                    sender.sendMessage(mini.deserialize("<gray>No holograms configured.</gray>"));
+                    sendMsg(sender, "hologram.messages.list-empty");
                 } else {
-                    sender.sendMessage(mini.deserialize("<gold>Holograms:</gold>"));
-                    for (String line : lines) sender.sendMessage(mini.deserialize("<gray>" + line + "</gray>"));
+                    sendMsg(sender, "hologram.messages.list-header");
+                    for (String line : lines) {
+                        sender.sendMessage(mini.deserialize("<gray>" + line + "</gray>"));
+                    }
                 }
                 return true;
             }
             case "bring": {
                 if (!(sender instanceof Player p)) {
-                    sender.sendMessage("Must be a player.");
+                    sendMsg(sender, "hologram.messages.only-player");
                     return true;
                 }
-                if (!checkOpPerm(sender)) return true;
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
                 if (args.length < 2) {
-                    sender.sendMessage(mini.deserialize("<red>Usage: /hologram bring <id></red>"));
+                    sendMsg(sender, "hologram.messages.usage.bring");
                     return true;
                 }
                 try {
                     int id = Integer.parseInt(args[1]);
                     boolean ok = manager.bringToPlayer(id, p, true);
-                    sender.sendMessage(mini.deserialize(ok ? "<green>Brought hologram #" + id + " to your location.</green>"
-                            : "<red>Hologram #" + id + " not found.</red>"));
+                    if (ok) sendMsg(sender, "hologram.messages.brought", "%id%", String.valueOf(id));
+                    else sendMsg(sender, "hologram.messages.not-found", "%id%", String.valueOf(id));
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(mini.deserialize("<red>ID must be a number.</red>"));
+                    sendMsg(sender, "hologram.messages.id-not-number");
                 }
                 return true;
             }
             case "set": {
-                if (!checkOpPerm(sender)) return true;
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
                 if (args.length < 4) {
                     helpSet(sender);
                     return true;
                 }
-                int id;
+                final int id;
                 try {
                     id = Integer.parseInt(args[1]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(mini.deserialize("<red>ID must be a number.</red>"));
+                    sendMsg(sender, "hologram.messages.id-not-number");
                     return true;
                 }
-                String prop = args[2].toLowerCase();
+                String prop = args[2].toLowerCase(Locale.ROOT);
                 switch (prop) {
                     case "text": {
-                        String msg = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
-                        boolean ok = manager.setText(id, msg);
-                        sender.sendMessage(mini.deserialize(ok ? "<green>Updated text for #" + id + ".</green>"
-                                : "<red>Hologram #" + id + " not found.</red>"));
+                        String msgText = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+                        boolean ok = manager.setText(id, msgText);
+                        if (ok) sendMsg(sender, "hologram.messages.set.text.ok", "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.not-found", "%id%", String.valueOf(id));
                         return true;
                     }
                     case "scale": {
                         try {
                             double v = Double.parseDouble(args[3]);
                             boolean ok = manager.setScale(id, v);
-                            sender.sendMessage(mini.deserialize(ok ? "<green>Scale set to " + v + " for #" + id + ".</green>"
-                                    : "<red>Failed to set scale for #" + id + ".</red>"));
+                            if (ok)
+                                sendMsg(sender, "hologram.messages.set.scale.ok", "%value%", String.valueOf(v), "%id%", String.valueOf(id));
+                            else sendMsg(sender, "hologram.messages.set.scale.fail", "%id%", String.valueOf(id));
                         } catch (NumberFormatException e) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> scale <number></red>"));
+                            sendMsg(sender, "hologram.messages.usage.scale");
                         }
                         return true;
                     }
                     case "background": {
                         String hex = args[3];
                         boolean ok = manager.setBackground(id, hex);
-                        sender.sendMessage(mini.deserialize(ok ? "<green>Background set to " + hex + " for #" + id + ".</green>"
-                                : "<red>Invalid color. Use #RRGGBB or #AARRGGBB.</red>"));
+                        if (ok)
+                            sendMsg(sender, "hologram.messages.set.background.ok", "%value%", hex, "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.set.background.invalid");
                         return true;
                     }
                     case "text_opacity": {
                         try {
                             int v = Integer.parseInt(args[3]);
                             boolean ok = manager.setTextOpacity(id, v);
-                            sender.sendMessage(mini.deserialize(ok ? "<green>Text opacity set to " + v + " for #" + id + ".</green>"
-                                    : "<red>Failed to set text opacity for #" + id + ".</red>"));
+                            if (ok)
+                                sendMsg(sender, "hologram.messages.set.text_opacity.ok", "%value%", String.valueOf(v), "%id%", String.valueOf(id));
+                            else sendMsg(sender, "hologram.messages.set.text_opacity.fail", "%id%", String.valueOf(id));
                         } catch (NumberFormatException e) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> text_opacity <0-255></red>"));
+                            sendMsg(sender, "hologram.messages.usage.text_opacity");
                         }
                         return true;
                     }
                     case "alignment": {
                         String v = args[3];
                         boolean ok = manager.setAlignment(id, v);
-                        sender.sendMessage(mini.deserialize(ok ? "<green>Alignment set to " + v + " for #" + id + ".</green>"
-                                : "<red>Alignment must be left, center, or right.</red>"));
+                        if (ok)
+                            sendMsg(sender, "hologram.messages.set.alignment.ok", "%value%", v, "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.set.alignment.invalid");
                         return true;
                     }
                     case "billboard": {
                         String v = args[3];
                         boolean ok = manager.setBillboard(id, v);
-                        sender.sendMessage(mini.deserialize(ok ? "<green>Billboard set to " + v + " for #" + id + ".</green>"
-                                : "<red>Billboard must be center, fixed, vertical, or horizontal.</red>"));
+                        if (ok)
+                            sendMsg(sender, "hologram.messages.set.billboard.ok", "%value%", v, "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.set.billboard.invalid");
                         return true;
                     }
                     case "shadow": {
-                        String v = args[3].toLowerCase();
+                        String v = args[3].toLowerCase(Locale.ROOT);
                         if (!v.equals("true") && !v.equals("false")) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> shadow <true|false></red>"));
+                            sendMsg(sender, "hologram.messages.usage.shadow");
                             return true;
                         }
                         boolean ok = manager.setShadow(id, Boolean.parseBoolean(v));
-                        sender.sendMessage(mini.deserialize(ok ? "<green>Shadow set to " + v + " for #" + id + ".</green>"
-                                : "<red>Failed to set shadow for #" + id + ".</red>"));
+                        if (ok)
+                            sendMsg(sender, "hologram.messages.set.shadow.ok", "%value%", v, "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.set.shadow.fail", "%id%", String.valueOf(id));
                         return true;
                     }
                     case "see_through": {
-                        String v = args[3].toLowerCase();
+                        String v = args[3].toLowerCase(Locale.ROOT);
                         if (!v.equals("true") && !v.equals("false")) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> see_through <true|false></red>"));
+                            sendMsg(sender, "hologram.messages.usage.see_through");
                             return true;
                         }
                         boolean ok = manager.setSeeThrough(id, Boolean.parseBoolean(v));
-                        sender.sendMessage(mini.deserialize(ok ? "<green>See-through set to " + v + " for #" + id + ".</green>"
-                                : "<red>Failed to set see-through for #" + id + ".</red>"));
+                        if (ok)
+                            sendMsg(sender, "hologram.messages.set.see_through.ok", "%value%", v, "%id%", String.valueOf(id));
+                        else sendMsg(sender, "hologram.messages.set.see_through.fail", "%id%", String.valueOf(id));
                         return true;
                     }
                     case "translation": {
                         if (args.length < 6) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> translation <x> <y> <z></red>"));
+                            sendMsg(sender, "hologram.messages.usage.translation");
                             return true;
                         }
                         try {
@@ -199,16 +233,16 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                             double y = Double.parseDouble(args[4]);
                             double z = Double.parseDouble(args[5]);
                             boolean ok = manager.setTranslation(id, x, y, z);
-                            sender.sendMessage(mini.deserialize(ok ? "<green>Translation set for #" + id + ".</green>"
-                                    : "<red>Failed to set translation for #" + id + ".</red>"));
+                            if (ok) sendMsg(sender, "hologram.messages.set.translation.ok", "%id%", String.valueOf(id));
+                            else sendMsg(sender, "hologram.messages.set.translation.fail", "%id%", String.valueOf(id));
                         } catch (NumberFormatException e) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> translation <x> <y> <z></red>"));
+                            sendMsg(sender, "hologram.messages.usage.translation");
                         }
                         return true;
                     }
                     case "rotation": {
                         if (args.length < 6) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> rotation <yaw> <pitch> <roll></red>"));
+                            sendMsg(sender, "hologram.messages.usage.rotation");
                             return true;
                         }
                         try {
@@ -216,24 +250,27 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                             double pitch = Double.parseDouble(args[4]);
                             double roll = Double.parseDouble(args[5]);
                             boolean ok = manager.setRotation(id, yaw, pitch, roll);
-                            sender.sendMessage(mini.deserialize(ok ? "<green>Rotation set for #" + id + ".</green>"
-                                    : "<red>Failed to set rotation for #" + id + ".</red>"));
+                            if (ok) sendMsg(sender, "hologram.messages.set.rotation.ok", "%id%", String.valueOf(id));
+                            else sendMsg(sender, "hologram.messages.set.rotation.fail", "%id%", String.valueOf(id));
                         } catch (NumberFormatException e) {
-                            sender.sendMessage(mini.deserialize("<red>Usage: /hologram set <id> rotation <yaw> <pitch> <roll></red>"));
+                            sendMsg(sender, "hologram.messages.usage.rotation");
                         }
                         return true;
                     }
                     default: {
-                        sender.sendMessage(mini.deserialize("<red>Unknown property.</red>"));
+                        sendMsg(sender, "hologram.messages.unknown-property");
                         helpSet(sender);
                         return true;
                     }
                 }
             }
             case "cleanup": {
-                if (!checkOpPerm(sender)) return true;
+                if (!hasOpPerm(sender)) {
+                    sendMsg(sender, "hologram.messages.no-permission");
+                    return true;
+                }
                 int removed = manager.purgeAllTagged();
-                sender.sendMessage(mini.deserialize("<green>Removed <yellow>" + removed + "</yellow> hologram display(s).</green>"));
+                sendMsg(sender, "hologram.messages.cleanup.removed", "%count%", String.valueOf(removed));
                 return true;
             }
             default: {
@@ -244,40 +281,40 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
     }
 
     private void help(CommandSender sender) {
-        sender.sendMessage(mini.deserialize("<gray>/hologram create | delete <id> | list | bring <id> | set <id> ... | cleanup</gray>"));
+        sendMsg(sender, "hologram.messages.help.main");
     }
+
     private void helpSet(CommandSender sender) {
-        sender.sendMessage(mini.deserialize("<gray>Usage:</gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> text <message...></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> scale <number></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> background <#AARRGGBB|#RRGGBB></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> text_opacity <0-255></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> alignment <left|center|right></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> billboard <center|fixed|vertical|horizontal></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> shadow <true|false></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> see_through <true|false></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> translation <x> <y> <z></gray>"));
-        sender.sendMessage(mini.deserialize("<gray>/hologram set <id> rotation <yaw> <pitch> <roll></gray>"));
+        sendMsg(sender, "hologram.messages.help.set.header");
+        sendMsg(sender, "hologram.messages.help.set.text");
+        sendMsg(sender, "hologram.messages.help.set.scale");
+        sendMsg(sender, "hologram.messages.help.set.background");
+        sendMsg(sender, "hologram.messages.help.set.text_opacity");
+        sendMsg(sender, "hologram.messages.help.set.alignment");
+        sendMsg(sender, "hologram.messages.help.set.billboard");
+        sendMsg(sender, "hologram.messages.help.set.shadow");
+        sendMsg(sender, "hologram.messages.help.set.see_through");
+        sendMsg(sender, "hologram.messages.help.set.translation");
+        sendMsg(sender, "hologram.messages.help.set.rotation");
     }
 
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         if (args.length == 1) {
-            List<String> base = new ArrayList<>();
-            base.add("create"); base.add("delete"); base.add("list"); base.add("bring"); base.add("set"); base.add("cleanup");
-            return base;
+            return Arrays.asList("create", "delete", "list", "bring", "set", "cleanup");
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("set")) {
-            List<String> props = new ArrayList<>();
-            Collections.addAll(props, "text","scale","background","text_opacity","alignment","billboard","shadow","see_through","translation","rotation");
-            return props;
+            return Arrays.asList("text", "scale", "background", "text_opacity", "alignment", "billboard", "shadow", "see_through", "translation", "rotation");
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("set")) {
-            switch (args[2].toLowerCase()) {
-                case "alignment": return List.of("left","center","right");
-                case "billboard": return List.of("center","fixed","vertical","horizontal");
+            switch (args[2].toLowerCase(Locale.ROOT)) {
+                case "alignment":
+                    return Arrays.asList("left", "center", "right");
+                case "billboard":
+                    return Arrays.asList("center", "fixed", "vertical", "horizontal");
                 case "shadow":
-                case "see_through": return List.of("true","false");
+                case "see_through":
+                    return Arrays.asList("true", "false");
             }
         }
         return Collections.emptyList();
