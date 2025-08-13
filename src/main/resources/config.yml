@@ -129,6 +129,12 @@ allowed-commands:
   - session
   - spawn
   - fendorisreload
+  - message
+  - msg
+  - reply
+  - r
+  - togglechat
+  - togglepm
 
 # ---------------------------------------------------------
 # Spawn / SetSpawn / SendToSpawn
@@ -252,6 +258,51 @@ hologram:
 
     cleanup:
       removed: "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>"
+
+#Chat
+chat:
+  format:
+    global: "<white>%player%</white>: %message%"
+    operator: "<gold>%player%</gold>: %message%"
+  msg:
+    self: "<gray>[To <white>%target%</white>]</gray> %message%"
+    self-operator: "<gray>[To <gold>%target%</gold>]</gray> %message%"
+    other: "<gray>[From <white>%player%</white>]</gray> %message%"
+    other-operator: "<gray>[From <gold>%player%</gold>]</gray> %message%"
+  message:
+    usage: "<red>Usage: /message <player> <message></red>"
+  reply:
+    none: "<red>No recent private conversation.</red>"
+    self: "<red>You cannot message yourself.</red>"
+    usage: "<red>Usage: /reply <message></red>"
+  pm:
+    not-found: "<red>Player not found.</red>"
+    blocked: "<red>This player is not accepting private messages.</red>"
+  togglechat:
+    enabled-message: "<green>Public chat disabled.</green>"
+    disabled-message: "<green>Public chat enabled.</green>"
+    reminder: "<red>You have chat disabled. Use /togglechat to enable.</red>"
+  togglepm:
+    enabled-message: "<green>Private messages disabled.</green>"
+    disabled-message: "<green>Private messages enabled.</green>"
+  cooldown:
+    enabled: true
+    seconds: 3.0
+    message: "<red>You must wait %seconds%s before chatting again.</red>"
+  mention-sound-enabled: true
+  mention-sound-name: "minecraft:block.note_block.pling"
+  mention-sound-volume: 1.0
+  mention-sound-pitch: 1.0
+  urls:
+    replacement: "***"
+    allowlist:
+      - "fendoris.com"
+      - "discord.com/invite/fendoris"
+  profanity:
+    enabled: true
+    words:
+      - "nigger"
+
 
 # ---------------------------------------------------------
 # Storage

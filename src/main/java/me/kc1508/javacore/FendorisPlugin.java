@@ -3,6 +3,7 @@ package me.kc1508.javacore;
 import me.kc1508.javacore.commands.*;
 import me.kc1508.javacore.listeners.*;
 import me.kc1508.javacore.hologram.*;
+import me.kc1508.javacore.chat.*; // <- chat service + listener + commands
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
@@ -25,7 +26,7 @@ public final class FendorisPlugin extends JavaPlugin {
     private AllowedCommandListener allowedCommandListener;
     private ServerPingListener serverPingListener;
 
-    private static final boolean devModeConfigReset = false;
+    private static final boolean devModeConfigReset = true;
 
     private final Set<UUID> pvpEnabledPlayers = new HashSet<>();
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
@@ -94,8 +95,26 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("hologram")).setExecutor(hologramCommand);
         Objects.requireNonNull(getCommand("hologram")).setTabCompleter(hologramCommand);
 
+        // ---- Chat system wiring ----
+        final ChatService chatService = new ChatService(this);
+        getServer().getPluginManager().registerEvents(new ChatListener(this, chatService), this);
 
-        // Move ensureTeamsExist() call here, AFTER TabListManager is instantiated
+        MessageCommand messageCmd = new MessageCommand(this, chatService);
+        ReplyCommand replyCmd = new ReplyCommand(this, chatService);
+        ToggleChatCommand toggleChatCmd = new ToggleChatCommand(this, chatService);
+        TogglePmCommand togglePmCmd = new TogglePmCommand(this, chatService);
+
+        Objects.requireNonNull(getCommand("message")).setExecutor(messageCmd);
+        Objects.requireNonNull(getCommand("message")).setTabCompleter(messageCmd);
+        Objects.requireNonNull(getCommand("reply")).setExecutor(replyCmd);
+        Objects.requireNonNull(getCommand("reply")).setTabCompleter(replyCmd);
+        Objects.requireNonNull(getCommand("togglechat")).setExecutor(toggleChatCmd);
+        Objects.requireNonNull(getCommand("togglechat")).setTabCompleter(toggleChatCmd);
+        Objects.requireNonNull(getCommand("togglepm")).setExecutor(togglePmCmd);
+        Objects.requireNonNull(getCommand("togglepm")).setTabCompleter(togglePmCmd);
+        // ----------------------------
+
+        // AFTER TabListManager is instantiated
         tabListManager.ensureTeamsExist();
 
         if (getConfig().getBoolean("tablist-enabled", false)) {

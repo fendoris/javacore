@@ -37,3 +37,17 @@ commands:
     usage: "/hologram"
     permission: fendoris.operator.hologram
     aliases: [hg]
+  message:
+    description: Send a private message
+    usage: /message <player> <message>
+    aliases: [msg]
+  reply:
+    description: Reply to the most recent PM
+    usage: /reply <message>
+    aliases: [r]
+  togglechat:
+    description: Toggle public chat for yourself
+    usage: /togglechat
+  togglepm:
+    description: Toggle private messages for yourself
+    usage: /togglepm
