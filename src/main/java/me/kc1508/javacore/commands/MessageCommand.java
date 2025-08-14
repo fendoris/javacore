@@ -53,19 +53,15 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
         }
 
         String msg = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        msg = ChatFilters.filter(plugin, msg);
+        if (!fromIsOp) msg = ChatFilters.filter(plugin, msg, p.getName());
 
         String toKey = target.hasPermission("fendoris.operator") ? "chat.msg.self-operator" : "chat.msg.self";
         String toTpl = plugin.getConfig().getString(toKey);
-        if (toTpl != null && !toTpl.isBlank()) {
-            p.sendMessage(SafeMini.renderPm(mini, toTpl, Component.text(p.getName()), Component.text(target.getName()), msg));
-        }
+        p.sendMessage(SafeMini.renderPm(mini, toTpl, Component.text(p.getName()), p.getName(), Component.text(target.getName()), target.getName(), msg));
 
         String fromKey = p.hasPermission("fendoris.operator") ? "chat.msg.other-operator" : "chat.msg.other";
         String fromTpl = plugin.getConfig().getString(fromKey);
-        if (fromTpl != null && !fromTpl.isBlank()) {
-            target.sendMessage(SafeMini.renderPm(mini, fromTpl, Component.text(p.getName()), Component.text(target.getName()), msg));
-        }
+        target.sendMessage(SafeMini.renderPm(mini, fromTpl, Component.text(p.getName()), p.getName(), Component.text(target.getName()), target.getName(), msg));
 
         chat.noteConversation(p.getUniqueId(), target.getUniqueId());
         return true;

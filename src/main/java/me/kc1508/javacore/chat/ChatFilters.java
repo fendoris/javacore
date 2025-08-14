@@ -11,18 +11,23 @@ public class ChatFilters {
     private static final Pattern URL_PATTERN = Pattern.compile("\\b((https?://)?([A-Za-z0-9.-]+)\\.[A-Za-z]{2,})(/[\\w\\-./%?=&]*)?", Pattern.CASE_INSENSITIVE);
 
     public static String filter(FendorisPlugin plugin, String message) {
+        return filter(plugin, message, null);
+    }
+
+    public static String filter(FendorisPlugin plugin, String message, String senderName) {
         String out = message;
-        out = filterUrls(plugin, out);
-        out = filterProfanity(plugin, out);
+        out = filterUrls(plugin, out, senderName);
+        out = filterProfanity(plugin, out, senderName);
         return out;
     }
 
-    private static String filterUrls(FendorisPlugin plugin, String msg) {
-        String replacement = plugin.getConfig().getString("chat.urls.replacement"); // defined by validator
+    private static String filterUrls(FendorisPlugin plugin, String msg, String sender) {
+        final String replacement = plugin.getConfig().getString("chat.urls.replacement");
         List<String> allow = plugin.getConfig().getStringList("chat.urls.allowlist");
 
         Matcher m = URL_PATTERN.matcher(msg);
         StringBuilder sb = new StringBuilder();
+
         while (m.find()) {
             String full = m.group(0);
             String hostAndPath = "";
@@ -50,21 +55,27 @@ public class ChatFilters {
                     }
                 }
             }
+
             if (allowed) {
                 m.appendReplacement(sb, Matcher.quoteReplacement(full));
             } else {
-                if (replacement == null || replacement.isBlank()) {
-                    m.appendReplacement(sb, Matcher.quoteReplacement("*".repeat(full.length())));
-                } else {
-                    m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+                String mask = replacement;
+                if (mask == null || mask.isEmpty()) {
+                    mask = "*".repeat(Math.max(3, full.length()));
+                }
+                m.appendReplacement(sb, Matcher.quoteReplacement(mask));
+                if (sender != null) {
+                    plugin.getLogger().warning("[ChatFilter] Blocked URL from " + sender + ": " + full);
                 }
             }
         }
         m.appendTail(sb);
+
+        // already logged each URL; nothing else to add
         return sb.toString();
     }
 
-    private static String filterProfanity(FendorisPlugin plugin, String msg) {
+    private static String filterProfanity(FendorisPlugin plugin, String msg, String sender) {
         boolean enabled = plugin.getConfig().getBoolean("chat.profanity.enabled");
         if (!enabled) return msg;
         List<String> words = plugin.getConfig().getStringList("chat.profanity.words");
@@ -83,7 +94,13 @@ public class ChatFilters {
                         break;
                     }
                 }
-                out.append(bad ? "*".repeat(token.length()) : token);
+                if (bad) {
+                    if (sender != null)
+                        plugin.getLogger().warning("[ChatFilter] Censored word from " + sender + ": " + token);
+                    out.append("*".repeat(token.length()));
+                } else {
+                    out.append(token);
+                }
             } else {
                 out.append(token);
             }
@@ -93,9 +110,7 @@ public class ChatFilters {
 
     private static String normalize(String s) {
         String t = s.toLowerCase(Locale.ROOT);
-        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i')
-                .replace('3', 'e').replace('4', 'a').replace('@', 'a')
-                .replace('5', 's').replace('$', 's').replace('7', 't');
+        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i').replace('3', 'e').replace('4', 'a').replace('@', 'a').replace('5', 's').replace('$', 's').replace('7', 't');
         t = t.replaceAll("[^a-z]", "");
         t = t.replaceAll("(.)\\1{2,}", "$1$1");
         return t;

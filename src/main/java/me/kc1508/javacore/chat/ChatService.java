@@ -3,9 +3,7 @@ package me.kc1508.javacore.chat;
 import me.kc1508.javacore.FendorisPlugin;
 import org.bukkit.entity.Player;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatService {
@@ -22,15 +20,26 @@ public class ChatService {
     }
 
     public boolean toggleChat(UUID id) {
-        if (chatDisabled.remove(id)) return false;
+        if (chatDisabled.contains(id)) {
+            chatDisabled.remove(id);
+            return false;
+        }
         chatDisabled.add(id);
         return true;
     }
 
     public boolean togglePm(UUID id) {
-        if (pmDisabled.remove(id)) return false;
+        if (pmDisabled.contains(id)) {
+            pmDisabled.remove(id);
+            return false;
+        }
         pmDisabled.add(id);
         return true;
+    }
+
+    public void resetToggles(UUID id) {
+        chatDisabled.remove(id);
+        pmDisabled.remove(id);
     }
 
     public boolean isChatDisabled(UUID id) {
@@ -76,6 +85,9 @@ public class ChatService {
         return lastPartner.get(id);
     }
 
+    /**
+     * recipient can receive from 'from' if operator OR PMs enabled OR in bypass set
+     */
     public boolean canReceivePm(UUID recipient, UUID from, boolean fromIsOperator) {
         if (fromIsOperator) return true;
         if (!pmDisabled.contains(recipient)) return true;

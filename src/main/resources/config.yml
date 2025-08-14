@@ -260,72 +260,85 @@ hologram:
     cleanup:
       removed: "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>"
 
-#Chat
+# ---------------------------------------------------------
+# Chat
+# ---------------------------------------------------------
+
 chat:
   format:
+    # %player% renders the name (operator styled in 'operator' format), %playername% is a raw string for attributes
     global: "<hover:show_text:'<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %player% '>%player%</click></white></hover>: %message%"
-    operator: "<hover:show_text:'<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation.</gray>\n\n<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %player% '><gold>%player%</gold></click></white></hover>: %message%"
+    operator: "<hover:show_text:'<gray>(Click) Message %player%</gray>'><gold><click:suggest_command:'/msg %player% '>%player%</click></gold></hover>: %message%"
+
   msg:
     self: "<gray>[To <white>%target%</white>]</gray> %message%"
     self-operator: "<gray>[To <gold>%target%</gold>]</gray> %message%"
     other: "<gray>[From <white>%player%</white>]</gray> %message%"
     other-operator: "<gray>[From <gold>%player%</gold>]</gray> %message%"
+
   message:
     usage: "<red>Usage: /message <player> <message></red>"
+
   reply:
     none: "<red>No recent private conversation.</red>"
     self: "<red>You cannot message yourself.</red>"
     usage: "<red>Usage: /reply <message></red>"
+
   pm:
     not-found: "<red>Player not found.</red>"
     blocked: "<red>This player is not accepting private messages.</red>"
+
   togglechat:
     enabled-message: "<green>Public chat disabled.</green>"
     disabled-message: "<green>Public chat enabled.</green>"
     reminder: "<red>You have chat disabled. Use /togglechat to enable.</red>"
+
   togglepm:
     enabled-message: "<green>Private messages disabled.</green>"
     disabled-message: "<green>Private messages enabled.</green>"
+
   cooldown:
     enabled: true
     seconds: 3.0
     message: "<red>You must wait %seconds%s before chatting again.</red>"
+
   mention-sound-enabled: true
   mention-sound-name: "minecraft:block.note_block.pling"
   mention-sound-volume: 1.0
   mention-sound-pitch: 1.0
+
   urls:
     replacement: "***"
     allowlist:
       - "fendoris.com"
       - "discord.com/invite/fendoris"
+
   profanity:
     enabled: true
     words:
       - "nigger"
 
 # ---------------------------------------------------------
-# Help Command
+# Help Request
 # ---------------------------------------------------------
 
 helpme:
   enabled: true
   cooldown-seconds: 60
   cooldown-no-ops-online-seconds: 10
+  cooldown-message: "<red>You must wait %seconds%s before using this again.</red>"
   only-player-message: "<red>Only players can use this command.</red>"
-  disabled-message: "<red>The help request command is disabled.</red>"
-  cooldown-message: "<red>You must wait %seconds%s before using /ineedhelp again.</red>"
-  ack-message: "<green>Help request sent to online operators.</green>"
-  no-operators: "<yellow>No operators are currently online.</yellow>"
-  default-message: "I need help."
-  broadcast: "<gray>[<gold>Help</gold>] <white>%player%</white> needs help.</gray>"
-
+  disabled-message: "<red>This feature is currently disabled.</red>"
+  default-message: "needs help."
+  broadcast: "<gold>Help Request:</gold> <white>%player%</white> %message%"
+  ack-message: "<green>Your request has been sent to online operators.</green>"
+  no-operators: "<yellow>No operators are online right now. Try again shortly.</yellow>"
 
 # ---------------------------------------------------------
 # Storage
 # ---------------------------------------------------------
 
-holograms: {}
+holograms: { }
 
 # ---------------------------------------------------------
 # Do Not Edit Below

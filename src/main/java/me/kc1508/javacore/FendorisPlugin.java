@@ -73,9 +73,7 @@ public final class FendorisPlugin extends JavaPlugin {
         serverPingListener = new ServerPingListener(this);
         getServer().getPluginManager().registerEvents(serverPingListener, this);
 
-        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(
-                new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener)
-        );
+        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener));
 
         SessionCommand sessionCommand = new SessionCommand(this);
         getServer().getPluginManager().registerEvents(new SessionListener(sessionCommand), this);
@@ -115,10 +113,12 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("togglechat")).setTabCompleter(toggleChatCmd);
         Objects.requireNonNull(getCommand("togglepm")).setExecutor(togglePmCmd);
         Objects.requireNonNull(getCommand("togglepm")).setTabCompleter(togglePmCmd);
-        Objects.requireNonNull(getCommand("ineedhelp")).setExecutor(new INeedHelpCommand(this));
-        // ----------------------------
 
-        // AFTER TabListManager is instantiated
+        // /ineedhelp
+        INeedHelpCommand helpCmd = new INeedHelpCommand(this);
+        Objects.requireNonNull(getCommand("ineedhelp")).setExecutor(helpCmd);
+        getServer().getPluginManager().registerEvents(helpCmd, this);
+
         tabListManager.ensureTeamsExist();
 
         if (getConfig().getBoolean("tablist-enabled", false)) {

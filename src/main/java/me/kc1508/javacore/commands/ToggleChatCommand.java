@@ -11,18 +11,19 @@ import java.util.Collections;
 import java.util.List;
 
 public class ToggleChatCommand implements CommandExecutor, TabCompleter {
+
     private final FendorisPlugin plugin;
     private final ChatService chat;
-    private final MiniMessage mini = MiniMessage.miniMessage();
+    private final MiniMessage mini;
 
     public ToggleChatCommand(FendorisPlugin plugin, ChatService chat) {
         this.plugin = plugin;
         this.chat = chat;
+        this.mini = plugin.getMiniMessage();
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, String @NotNull [] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player p)) return true;
 
         boolean nowDisabled = chat.toggleChat(p.getUniqueId());
@@ -33,8 +34,7 @@ public class ToggleChatCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                      @NotNull String alias, String @NotNull [] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         return Collections.emptyList();
     }
 }

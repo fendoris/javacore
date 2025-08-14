@@ -158,8 +158,9 @@ public class ConfigValidator {
         changed |= migrateToggleKeys("chat.togglechat");
         changed |= migrateToggleKeys("chat.togglepm");
 
-        changed |= checkStringDefault("chat.format.global", "<white>%player%</white>: %message%");
-        changed |= checkStringDefault("chat.format.operator", "<gold>%player%</gold>: %message%");
+        // SafeMini-aware defaults: %playername% for click action, %player% for styled component
+        changed |= checkStringDefault("chat.format.global", "<hover:show_text:'<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %playername% '>%player%</click></white></hover>: %message%");
+        changed |= checkStringDefault("chat.format.operator", "<hover:show_text:'<gray>(Click) Message %player%</gray>'><gold><click:suggest_command:'/msg %playername% '>%player%</click></gold></hover>: %message%");
 
         changed |= checkStringDefault("chat.msg.self", "<gray>[To <white>%target%</white>]</gray> %message%");
         changed |= checkStringDefault("chat.msg.self-operator", "<gray>[To <gold>%target%</gold>]</gray> %message%");
