@@ -23,8 +23,7 @@ public class ReplyCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, String @NotNull [] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player)) return true;
         Player p = (Player) sender;
 
@@ -58,14 +57,12 @@ public class ReplyCommand implements CommandExecutor, TabCompleter {
 
         String toKey = target.hasPermission("fendoris.operator") ? "chat.msg.self-operator" : "chat.msg.self";
         String to = plugin.getConfig().getString(toKey, "<gray>[To <white>%target%</white>]</gray> %message%");
-        to = to.replace("%target%", target.getName()).replace("{target}", target.getName())
-                .replace("%message%", msg).replace("{message}", msg);
+        to = to.replace("%target%", target.getName()).replace("{target}", target.getName()).replace("%message%", msg).replace("{message}", msg);
         p.sendMessage(mini.deserialize(to));
 
         String fromKey = p.hasPermission("fendoris.operator") ? "chat.msg.other-operator" : "chat.msg.other";
         String from = plugin.getConfig().getString(fromKey, "<gray>[From <white>%player%</white>]</gray> %message%");
-        from = from.replace("%player%", p.getName()).replace("{player}", p.getName())
-                .replace("%message%", msg).replace("{message}", msg);
+        from = from.replace("%player%", p.getName()).replace("{player}", p.getName()).replace("%message%", msg).replace("{message}", msg);
         target.sendMessage(mini.deserialize(from));
 
         chat.noteConversation(p.getUniqueId(), target.getUniqueId());
@@ -73,8 +70,7 @@ public class ReplyCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                                @NotNull String alias, String @NotNull [] args) {
+    public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         return java.util.Collections.emptyList();
     }
 }

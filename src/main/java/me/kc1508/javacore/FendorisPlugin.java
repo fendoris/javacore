@@ -112,6 +112,7 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("togglechat")).setTabCompleter(toggleChatCmd);
         Objects.requireNonNull(getCommand("togglepm")).setExecutor(togglePmCmd);
         Objects.requireNonNull(getCommand("togglepm")).setTabCompleter(togglePmCmd);
+        Objects.requireNonNull(getCommand("ineedhelp")).setExecutor(new INeedHelpCommand(this));
         // ----------------------------
 
         // AFTER TabListManager is instantiated

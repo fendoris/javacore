@@ -8,9 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ChatFilters {
-    private static final Pattern URL_PATTERN = Pattern.compile(
-            "\\b((https?://)?([A-Za-z0-9.-]+)\\.[A-Za-z]{2,})(/[\\w\\-./%?=&]*)?",
-            Pattern.CASE_INSENSITIVE);
+    private static final Pattern URL_PATTERN = Pattern.compile("\\b((https?://)?([A-Za-z0-9.-]+)\\.[A-Za-z]{2,})(/[\\w\\-./%?=&]*)?", Pattern.CASE_INSENSITIVE);
 
     public static String filter(FendorisPlugin plugin, String message) {
         String out = message;
@@ -56,9 +54,7 @@ public class ChatFilters {
             if (allowed) {
                 m.appendReplacement(sb, Matcher.quoteReplacement(full));
             } else {
-                String mask = replacement.equals("***")
-                        ? "*".repeat(full.length())
-                        : replacement;
+                String mask = replacement.equals("***") ? "*".repeat(full.length()) : replacement;
                 m.appendReplacement(sb, Matcher.quoteReplacement(mask));
             }
         }
@@ -95,9 +91,7 @@ public class ChatFilters {
 
     private static String normalize(String s) {
         String t = s.toLowerCase(Locale.ROOT);
-        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i').replace('3', 'e')
-                .replace('4', 'a').replace('@', 'a').replace('5', 's').replace('$', 's')
-                .replace('7', 't');
+        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i').replace('3', 'e').replace('4', 'a').replace('@', 'a').replace('5', 's').replace('$', 's').replace('7', 't');
         t = t.replaceAll("[^a-z]", "");        // strip non-letters
         t = t.replaceAll("(.)\\1{2,}", "$1$1"); // collapse long repeats
         return t;

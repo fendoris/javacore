@@ -89,7 +89,9 @@ public class HologramManager {
         active.clear();
     }
 
-    /** Removes ANY TextDisplay we ever created (by PDC id or scoreboard tag) across all worlds. */
+    /**
+     * Removes ANY TextDisplay we ever created (by PDC id or scoreboard tag) across all worlds.
+     */
     public int purgeAllTagged() {
         int removed = 0;
         for (World w : Bukkit.getWorlds()) {
@@ -226,7 +228,8 @@ public class HologramManager {
                     return Color.fromRGB(r, g, b);
                 }
             }
-        } catch (NumberFormatException ignored) { }
+        } catch (NumberFormatException ignored) {
+        }
         return null;
     }
 
@@ -267,9 +270,13 @@ public class HologramManager {
         props.set("text_opacity", 255);       // 0..255
         props.set("scale", 1.0);
         ConfigurationSection t = props.createSection("translation");
-        t.set("x", 0.0); t.set("y", 0.0); t.set("z", 0.0);
+        t.set("x", 0.0);
+        t.set("y", 0.0);
+        t.set("z", 0.0);
         ConfigurationSection r = props.createSection("rotation");
-        r.set("yaw", 0.0); r.set("pitch", 0.0); r.set("roll", 0.0);
+        r.set("yaw", 0.0);
+        r.set("pitch", 0.0);
+        r.set("roll", 0.0);
 
         // Persist + bump counter
         cfg.set("next-hologram", id + 1);
@@ -447,7 +454,9 @@ public class HologramManager {
         if (props == null) return false;
         ConfigurationSection t = props.getConfigurationSection("translation");
         if (t == null) t = props.createSection("translation");
-        t.set("x", x); t.set("y", y); t.set("z", z);
+        t.set("x", x);
+        t.set("y", y);
+        t.set("z", z);
         return applyAfterSet(id);
     }
 
@@ -456,7 +465,9 @@ public class HologramManager {
         if (props == null) return false;
         ConfigurationSection r = props.getConfigurationSection("rotation");
         if (r == null) r = props.createSection("rotation");
-        r.set("yaw", yaw); r.set("pitch", pitch); r.set("roll", roll);
+        r.set("yaw", yaw);
+        r.set("pitch", pitch);
+        r.set("roll", roll);
         return applyAfterSet(id);
     }
 }

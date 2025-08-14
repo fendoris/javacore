@@ -51,3 +51,6 @@ commands:
   togglepm:
     description: Toggle private messages for yourself
     usage: /togglepm
+  ineedhelp:
+    description: Send a help request to online operators.
+    usage: /ineedhelp [message]

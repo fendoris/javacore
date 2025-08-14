@@ -39,8 +39,8 @@ private-join-message: "<newline><color:#38aa56>Hey, %player%! Looks like you suc
 public-join-message: "<gray>%player% connected</gray><reset>"
 public-quit-message: "<gray>%player% disconnected</gray><reset>"
 
-public-operator-join-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>connected</gray><reset>"
-public-operator-quit-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation. You'll only see this hover text when they join or leave the game.</gray>\">%player%</hover></gold> <gray>disconnected</gray><reset>"
+public-operator-join-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation.</gray>\">%player%</hover></gold> <gray>connected</gray><reset>"
+public-operator-quit-message: "<reset><gold><hover:show_text:\"<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation.</gray>\">%player%</hover></gold> <gray>disconnected</gray><reset>"
 
 # ---------------------------------------------------------
 # PvP System
@@ -135,6 +135,7 @@ allowed-commands:
   - r
   - togglechat
   - togglepm
+  - ineedhelp
 
 # ---------------------------------------------------------
 # Spawn / SetSpawn / SendToSpawn
@@ -262,8 +263,8 @@ hologram:
 #Chat
 chat:
   format:
-    global: "<white>%player%</white>: %message%"
-    operator: "<gold>%player%</gold>: %message%"
+    global: "<hover:show_text:'<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %player% '>%player%</click></white></hover>: %message%"
+    operator: "<hover:show_text:'<gold>This player is an Operator</gold>\n\n<gray>These are trusted members of our community who handle server management, maintenance and moderation.</gray>\n\n<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %player% '><gold>%player%</gold></click></white></hover>: %message%"
   msg:
     self: "<gray>[To <white>%target%</white>]</gray> %message%"
     self-operator: "<gray>[To <gold>%target%</gold>]</gray> %message%"
@@ -302,6 +303,22 @@ chat:
     enabled: true
     words:
       - "nigger"
+
+# ---------------------------------------------------------
+# Help Command
+# ---------------------------------------------------------
+
+helpme:
+  enabled: true
+  cooldown-seconds: 60
+  cooldown-no-ops-online-seconds: 10
+  only-player-message: "<red>Only players can use this command.</red>"
+  disabled-message: "<red>The help request command is disabled.</red>"
+  cooldown-message: "<red>You must wait %seconds%s before using /ineedhelp again.</red>"
+  ack-message: "<green>Help request sent to online operators.</green>"
+  no-operators: "<yellow>No operators are currently online.</yellow>"
+  default-message: "I need help."
+  broadcast: "<gray>[<gold>Help</gold>] <white>%player%</white> needs help.</gray>"
 
 
 # ---------------------------------------------------------
