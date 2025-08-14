@@ -33,7 +33,10 @@ public final class FendorisPlugin extends JavaPlugin {
     private TabListManager tabListManager;
 
     private HologramManager hologramManager;
-    public HologramManager getHologramManager() { return hologramManager; }
+
+    public HologramManager getHologramManager() {
+        return hologramManager;
+    }
 
     @Override
     public void onEnable() {

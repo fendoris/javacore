@@ -24,74 +24,55 @@ public class MessageCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
-                             @NotNull String label, String @NotNull [] args) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
+        if (!(sender instanceof Player p)) return true;
 
         if (args.length < 2) {
-            String u = plugin.getConfig().getString("chat.message.usage",
-                    "<red>Usage: /message <player> <message></red>");
-            p.sendMessage(mini.deserialize(u));
+            String u = plugin.getConfig().getString("chat.message.usage");
+            if (u != null && !u.isBlank()) p.sendMessage(mini.deserialize(u));
             return true;
         }
 
         Player target = Bukkit.getPlayerExact(args[0]);
         if (target == null) {
-            String nf = plugin.getConfig().getString("chat.pm.not-found",
-                    "<red>Player not found.</red>");
-            p.sendMessage(mini.deserialize(nf));
+            String nf = plugin.getConfig().getString("chat.pm.not-found");
+            if (nf != null && !nf.isBlank()) p.sendMessage(mini.deserialize(nf));
             return true;
         }
         if (target.getUniqueId().equals(p.getUniqueId())) {
-            String self = plugin.getConfig().getString("chat.reply.self",
-                    "<red>You cannot message yourself.</red>");
-            p.sendMessage(mini.deserialize(self));
+            String self = plugin.getConfig().getString("chat.reply.self");
+            if (self != null && !self.isBlank()) p.sendMessage(mini.deserialize(self));
             return true;
         }
 
         boolean fromIsOp = p.hasPermission("fendoris.operator");
         if (!chat.canReceivePm(target.getUniqueId(), p.getUniqueId(), fromIsOp)) {
-            String blocked = plugin.getConfig().getString("chat.pm.blocked",
-                    "<red>This player is not accepting private messages.</red>");
-            p.sendMessage(mini.deserialize(blocked));
+            String blocked = plugin.getConfig().getString("chat.pm.blocked");
+            if (blocked != null && !blocked.isBlank()) p.sendMessage(mini.deserialize(blocked));
             return true;
         }
 
         String msg = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
-        msg = ChatFilters.filter(plugin, msg); // URL/profanity filters
+        msg = ChatFilters.filter(plugin, msg);
 
-        // Sender view
         String toKey = target.hasPermission("fendoris.operator") ? "chat.msg.self-operator" : "chat.msg.self";
-        String toTpl = plugin.getConfig().getString(toKey,
-                "<gray>[To <white>%target%</white>]</gray> %message%");
-        p.sendMessage(SafeMini.renderPm(
-                mini,
-                toTpl,
-                Component.text(p.getName()),
-                Component.text(target.getName()),
-                msg
-        ));
+        String toTpl = plugin.getConfig().getString(toKey);
+        if (toTpl != null && !toTpl.isBlank()) {
+            p.sendMessage(SafeMini.renderPm(mini, toTpl, Component.text(p.getName()), Component.text(target.getName()), msg));
+        }
 
-        // Recipient view
         String fromKey = p.hasPermission("fendoris.operator") ? "chat.msg.other-operator" : "chat.msg.other";
-        String fromTpl = plugin.getConfig().getString(fromKey,
-                "<gray>[From <white>%player%</white>]</gray> %message%");
-        target.sendMessage(SafeMini.renderPm(
-                mini,
-                fromTpl,
-                Component.text(p.getName()),
-                Component.text(target.getName()),
-                msg
-        ));
+        String fromTpl = plugin.getConfig().getString(fromKey);
+        if (fromTpl != null && !fromTpl.isBlank()) {
+            target.sendMessage(SafeMini.renderPm(mini, fromTpl, Component.text(p.getName()), Component.text(target.getName()), msg));
+        }
 
         chat.noteConversation(p.getUniqueId(), target.getUniqueId());
         return true;
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command,
-                                      @NotNull String alias, String @NotNull [] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
         if (args.length == 1) {
             String prefix = args[0].toLowerCase(Locale.ROOT);
             List<String> out = new ArrayList<>();

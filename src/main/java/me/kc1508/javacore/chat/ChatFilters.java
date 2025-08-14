@@ -18,12 +18,11 @@ public class ChatFilters {
     }
 
     private static String filterUrls(FendorisPlugin plugin, String msg) {
-        String replacement = plugin.getConfig().getString("chat.urls.replacement", "***");
+        String replacement = plugin.getConfig().getString("chat.urls.replacement"); // defined by validator
         List<String> allow = plugin.getConfig().getStringList("chat.urls.allowlist");
-        if (allow == null) allow = Collections.emptyList();
 
         Matcher m = URL_PATTERN.matcher(msg);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         while (m.find()) {
             String full = m.group(0);
             String hostAndPath = "";
@@ -54,8 +53,11 @@ public class ChatFilters {
             if (allowed) {
                 m.appendReplacement(sb, Matcher.quoteReplacement(full));
             } else {
-                String mask = replacement.equals("***") ? "*".repeat(full.length()) : replacement;
-                m.appendReplacement(sb, Matcher.quoteReplacement(mask));
+                if (replacement == null || replacement.isBlank()) {
+                    m.appendReplacement(sb, Matcher.quoteReplacement("*".repeat(full.length())));
+                } else {
+                    m.appendReplacement(sb, Matcher.quoteReplacement(replacement));
+                }
             }
         }
         m.appendTail(sb);
@@ -63,10 +65,10 @@ public class ChatFilters {
     }
 
     private static String filterProfanity(FendorisPlugin plugin, String msg) {
-        boolean enabled = plugin.getConfig().getBoolean("chat.profanity.enabled", true);
+        boolean enabled = plugin.getConfig().getBoolean("chat.profanity.enabled");
         if (!enabled) return msg;
         List<String> words = plugin.getConfig().getStringList("chat.profanity.words");
-        if (words == null || words.isEmpty()) return msg;
+        if (words.isEmpty()) return msg;
 
         StringBuilder out = new StringBuilder();
         Matcher m = Pattern.compile("\\w+|\\W+").matcher(msg);
@@ -91,9 +93,11 @@ public class ChatFilters {
 
     private static String normalize(String s) {
         String t = s.toLowerCase(Locale.ROOT);
-        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i').replace('3', 'e').replace('4', 'a').replace('@', 'a').replace('5', 's').replace('$', 's').replace('7', 't');
-        t = t.replaceAll("[^a-z]", "");        // strip non-letters
-        t = t.replaceAll("(.)\\1{2,}", "$1$1"); // collapse long repeats
+        t = t.replace('0', 'o').replace('1', 'i').replace('!', 'i')
+                .replace('3', 'e').replace('4', 'a').replace('@', 'a')
+                .replace('5', 's').replace('$', 's').replace('7', 't');
+        t = t.replaceAll("[^a-z]", "");
+        t = t.replaceAll("(.)\\1{2,}", "$1$1");
         return t;
     }
 }

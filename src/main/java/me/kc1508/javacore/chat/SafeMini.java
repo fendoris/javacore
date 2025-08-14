@@ -20,8 +20,7 @@ public final class SafeMini {
         String t = normalize(template);
         TagResolver resolver = TagResolver.resolver(
                 Placeholder.component("player", playerName),
-                // message injected as UNPARSED text — user <tags> won't be interpreted
-                Placeholder.unparsed("message", message)
+                Placeholder.unparsed("message", message) // user's text stays unparsed
         );
         return mini.deserialize(t, resolver);
     }

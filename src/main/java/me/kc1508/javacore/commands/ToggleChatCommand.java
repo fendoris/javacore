@@ -23,13 +23,12 @@ public class ToggleChatCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
                              @NotNull String label, String @NotNull [] args) {
-        if (!(sender instanceof Player)) return true;
-        Player p = (Player) sender;
+        if (!(sender instanceof Player p)) return true;
+
         boolean nowDisabled = chat.toggleChat(p.getUniqueId());
         String key = nowDisabled ? "chat.togglechat.enabled-message" : "chat.togglechat.disabled-message";
-        String raw = plugin.getConfig().getString(key, nowDisabled ? "<green>Public chat disabled.</green>" : "<green>Public chat enabled.</green>");
-        raw = raw.replace("%player%", p.getName()).replace("{player}", p.getName());
-        p.sendMessage(mini.deserialize(raw));
+        String raw = plugin.getConfig().getString(key);
+        if (raw != null && !raw.isBlank()) p.sendMessage(mini.deserialize(raw));
         return true;
     }
 

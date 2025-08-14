@@ -3,7 +3,9 @@ package me.kc1508.javacore.chat;
 import me.kc1508.javacore.FendorisPlugin;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatService {
@@ -20,19 +22,13 @@ public class ChatService {
     }
 
     public boolean toggleChat(UUID id) {
-        if (chatDisabled.contains(id)) {
-            chatDisabled.remove(id);
-            return false;
-        }
+        if (chatDisabled.remove(id)) return false;
         chatDisabled.add(id);
         return true;
     }
 
     public boolean togglePm(UUID id) {
-        if (pmDisabled.contains(id)) {
-            pmDisabled.remove(id);
-            return false;
-        }
+        if (pmDisabled.remove(id)) return false;
         pmDisabled.add(id);
         return true;
     }
@@ -50,9 +46,9 @@ public class ChatService {
     }
 
     public boolean checkAndTouchCooldown(Player p) {
-        if (!plugin.getConfig().getBoolean("chat.cooldown.enabled", true)) return true;
+        if (!plugin.getConfig().getBoolean("chat.cooldown.enabled")) return true;
         if (isCooldownBypassed(p)) return true;
-        double sec = plugin.getConfig().getDouble("chat.cooldown.seconds", 3.0);
+        double sec = plugin.getConfig().getDouble("chat.cooldown.seconds");
         long now = System.currentTimeMillis();
         long last = lastChatAt.getOrDefault(p.getUniqueId(), 0L);
         long wait = (long) Math.ceil(sec * 1000.0);
@@ -62,7 +58,7 @@ public class ChatService {
     }
 
     public double cooldownRemainingSeconds(Player p) {
-        double sec = plugin.getConfig().getDouble("chat.cooldown.seconds", 3.0);
+        double sec = plugin.getConfig().getDouble("chat.cooldown.seconds");
         long now = System.currentTimeMillis();
         long last = lastChatAt.getOrDefault(p.getUniqueId(), 0L);
         long wait = (long) Math.ceil(sec * 1000.0);
@@ -73,7 +69,6 @@ public class ChatService {
     public void noteConversation(UUID a, UUID b) {
         lastPartner.put(a, b);
         lastPartner.put(b, a);
-        // allow replies to A from B even if A has PMs off (A initiated)
         pmBypass.computeIfAbsent(a, k -> ConcurrentHashMap.newKeySet()).add(b);
     }
 
