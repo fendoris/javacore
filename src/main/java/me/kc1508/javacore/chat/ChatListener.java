@@ -8,64 +8,85 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-public class ChatListener implements Listener {
+public final class ChatListener implements Listener {
     private final FendorisPlugin plugin;
     private final ChatService chat;
-    private final MiniMessage mini = MiniMessage.miniMessage();
 
     public ChatListener(FendorisPlugin plugin, ChatService chat) {
         this.plugin = plugin;
         this.chat = chat;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onAsyncChat(AsyncChatEvent event) {
         final Player sender = event.getPlayer();
+        final MiniMessage mini = plugin.getMiniMessage();
 
-        // Block sending entirely if sender disabled chat (per-player)
+        // Per-player chat disable
         if (chat.isChatDisabled(sender.getUniqueId())) {
             event.setCancelled(true);
-            String reminder = plugin.getConfig().getString("chat.togglechat.reminder", "<red>You have chat disabled. Use /togglechat to enable.</red>");
+            String reminder = plugin.getConfig().getString(
+                    "chat.togglechat.reminder",
+                    "<red>You have chat disabled. Use /togglechat to enable.</red>"
+            );
             sender.sendMessage(mini.deserialize(reminder));
             return;
         }
 
-        // Cooldown
+        // Cooldown (bypass for operators is handled inside ChatService)
         if (!chat.checkAndTouchCooldown(sender)) {
             double remain = chat.cooldownRemainingSeconds(sender);
-            String msg = plugin.getConfig().getString("chat.cooldown.message", "<red>You must wait %seconds%s before chatting again.</red>");
+            String msg = plugin.getConfig().getString(
+                    "chat.cooldown.message",
+                    "<red>You must wait %seconds%s before chatting again.</red>"
+            );
             String secondsPart = remain < 1.0 ? "less than 1" : String.valueOf((int) Math.ceil(remain));
-            msg = msg.replace("%seconds%", secondsPart).replace("{seconds}", secondsPart).replace("%s", "s");
+            msg = msg.replace("%seconds%", secondsPart)
+                    .replace("{seconds}", secondsPart)
+                    .replace("%s", "s");
             sender.sendMessage(mini.deserialize(msg));
             event.setCancelled(true);
             return;
         }
 
         // Remove recipients who disabled chat
-        event.viewers().removeIf(a -> (a instanceof Player) && chat.isChatDisabled(((Player) a).getUniqueId()));
+        event.viewers().removeIf(a -> (a instanceof Player)
+                && chat.isChatDisabled(((Player) a).getUniqueId()));
 
-        // Build formatted message from config, with filters
+        // Extract plain user text, run filters, then render safely (no tag injection)
         final String rawMsg = PlainTextComponentSerializer.plainText().serialize(event.message());
         final String filtered = ChatFilters.filter(plugin, rawMsg);
 
-        final String key = sender.hasPermission("fendoris.operator") ? "chat.format.operator" : "chat.format.global";
-        String fmt = plugin.getConfig().getString(key, "<white>%player%</white>: %message%");
-        fmt = fmt.replace("%player%", sender.getName()).replace("{player}", sender.getName()).replace("%message%", filtered).replace("{message}", filtered);
+        final String key = sender.hasPermission("fendoris.operator")
+                ? "chat.format.operator" : "chat.format.global";
+        final String template = plugin.getConfig().getString(key, "<white>%player%</white>: %message%");
 
-        final Component rendered = mini.deserialize(fmt);
-        event.renderer((source, displayName, message, viewer) -> rendered);
+        event.renderer((source, displayName, message, viewer) ->
+                SafeMini.renderPlayerMessage(
+                        mini,
+                        template,
+                        Component.text(source.getName()),
+                        filtered
+                )
+        );
 
-        // Mentions -> play sound if message contains exact username
+        // Mentions: ping viewers whose exact name appears in filtered text
         if (plugin.getConfig().getBoolean("chat.mention-sound-enabled", true)) {
             final String text = filtered;
-            final String sound = plugin.getConfig().getString("chat.mention-sound-name", "minecraft:block.note_block.pling");
+            final String sound = plugin.getConfig().getString(
+                    "chat.mention-sound-name",
+                    "minecraft:block.note_block.pling"
+            );
             final float vol = (float) plugin.getConfig().getDouble("chat.mention-sound-volume", 1.0);
             final float pitch = (float) plugin.getConfig().getDouble("chat.mention-sound-pitch", 1.0);
+
+            // Play sounds on main thread
             Bukkit.getScheduler().runTask(plugin, () -> {
-                for (var a : event.viewers()) {
-                    if (a instanceof Player p && !p.equals(sender)) {
+                for (var audience : event.viewers()) {
+                    if (audience instanceof Player p && !p.equals(sender)) {
                         if (text.contains(p.getName())) {
                             p.playSound(p.getLocation(), sound, vol, pitch);
                         }
