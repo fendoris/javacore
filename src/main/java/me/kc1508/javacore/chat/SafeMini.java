@@ -5,30 +5,36 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
 
+/**
+ * Utilities to render MiniMessage templates without letting user text inject tags.
+ */
 public final class SafeMini {
     private SafeMini() {
     }
 
-    public static Component renderPlayerMessage(MiniMessage mini, String template, Component playerNameComponent, String playerNameRaw, String messageRaw) {
+    /**
+     * Global chat: %player% (styled), %playername% (raw string for attributes), %message% (unparsed).
+     */
+    public static Component renderPlayerMessage(MiniMessage mini, String template, Component playerName, String playerNameRaw, String message) {
         String t = normalize(template);
-        TagResolver resolver = TagResolver.resolver(Placeholder.component("player", playerNameComponent), Placeholder.unparsed("playername", playerNameRaw), Placeholder.unparsed("message", messageRaw));
+        TagResolver resolver = TagResolver.resolver(Placeholder.component("player", playerName), Placeholder.unparsed("playername", playerNameRaw), Placeholder.unparsed("message", message));
         return mini.deserialize(t, resolver);
     }
 
-    public static Component renderPm(MiniMessage mini, String template, Component playerNameComponent, String playerNameRaw, Component targetNameComponent, String targetNameRaw, String messageRaw) {
+    /**
+     * PMs: %player%, %playername%, %target%, %targetname%, %message% (all safe).
+     */
+    public static Component renderPm(MiniMessage mini, String template, Component playerName, String playerNameRaw, Component targetName, String targetNameRaw, String message) {
         String t = normalize(template);
-        TagResolver resolver = TagResolver.resolver(Placeholder.component("player", playerNameComponent), Placeholder.unparsed("playername", playerNameRaw), Placeholder.component("target", targetNameComponent), Placeholder.unparsed("targetname", targetNameRaw), Placeholder.unparsed("message", messageRaw));
+        TagResolver resolver = TagResolver.resolver(Placeholder.component("player", playerName), Placeholder.unparsed("playername", playerNameRaw), Placeholder.component("target", targetName), Placeholder.unparsed("targetname", targetNameRaw), Placeholder.unparsed("message", message));
         return mini.deserialize(t, resolver);
     }
 
+    /**
+     * Map config placeholders to MiniMessage placeholder tags.
+     */
     private static String normalize(String template) {
         if (template == null) template = "";
-        return template
-                // component placeholders
-                .replace("%player%", "<player>").replace("{player}", "<player>").replace("%target%", "<target>").replace("{target}", "<target>")
-                // raw-string placeholders (safe in attributes like click:suggest_command)
-                .replace("%playername%", "<playername>").replace("{playername}", "<playername>").replace("%targetname%", "<targetname>").replace("{targetname}", "<targetname>")
-                // message placeholder (raw text)
-                .replace("%message%", "<message>").replace("{message}", "<message>");
+        return template.replace("%player%", "<player>").replace("{player}", "<player>").replace("%playername%", "<playername>").replace("{playername}", "<playername>").replace("%target%", "<target>").replace("{target}", "<target>").replace("%targetname%", "<targetname>").replace("{targetname}", "<targetname>").replace("%message%", "<message>").replace("{message}", "<message>");
     }
 }

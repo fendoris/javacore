@@ -93,15 +93,15 @@ public class ConfigValidator {
         changed |= checkStringDefault("spawn.usage-message", "<red>Usage: /spawn (Teleports you to the server spawn location)<reset>");
         changed |= checkStringDefault("spawn.disabled-message", "<red>The Spawn system is currently disabled on this server.<reset>");
         changed |= checkStringDefault("spawn.teleport-success-message", "<green>You have been teleported to the server spawn.<reset>");
+        changed |= checkStringDefault("spawn.teleport-already-in-progress-message", "<red>You are already teleporting to spawn!<reset>");
         changed |= checkStringDefault("spawn.no-permission-message", "<red>You don't have permission to use this command.<reset>");
         changed |= checkStringDefault("spawn.sendtospawn-usage", "<red>Usage: /sendtospawn <player><reset>");
         changed |= checkStringDefault("spawn.player-not-online", "<red>That player is not online.<reset>");
         changed |= checkStringDefault("spawn.sent-to-spawn-message", "<green>You have been sent to spawn by an operator.<reset>");
         changed |= checkStringDefault("spawn.operator-sent-message", "<green>Sent %player% to spawn.<reset>");
         changed |= checkStringDefault("spawn.set-success", "<green>Spawn location saved to config.<reset>");
-        changed |= checkStringDefault("spawn.teleport-already-in-progress-message", "<red>You are already teleporting to spawn!<reset>");
 
-        // --- Holograms (messages only) ---
+        // --- Hologram messages (unchanged) ---
         changed |= checkStringDefault("hologram.messages.no-permission", "<red>You don't have permission to use this command.<reset>");
         changed |= checkStringDefault("hologram.messages.only-player", "<red>Only players can use this command.<reset>");
         changed |= checkStringDefault("hologram.messages.help.main", "<gray>/hologram create | delete <id> | list | bring <id> | set <id> ... | cleanup</gray>");
@@ -153,14 +153,16 @@ public class ConfigValidator {
         changed |= checkStringDefault("hologram.messages.set.rotation.fail", "<red>Failed to set rotation for <white>#%id%</white>.</red>");
         changed |= checkStringDefault("hologram.messages.cleanup.removed", "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>");
 
-        // --- Chat (all strings & settings) ---
-        // Migrate old on/off/true/false to enabled/disabled-message
+        // --- Chat ---
         changed |= migrateToggleKeys("chat.togglechat");
         changed |= migrateToggleKeys("chat.togglepm");
 
-        // SafeMini-aware defaults: %playername% for click action, %player% for styled component
-        changed |= checkStringDefault("chat.format.global", "<hover:show_text:'<gray>(Click) Message %player%</gray>'><white><click:suggest_command:'/msg %playername% '>%player%</click></white></hover>: %message%");
-        changed |= checkStringDefault("chat.format.operator", "<hover:show_text:'<gray>(Click) Message %player%</gray>'><gold><click:suggest_command:'/msg %playername% '>%player%</click></gold></hover>: %message%");
+        changed |= checkStringDefault("chat.format.global", "%player%: %message%");
+        changed |= checkStringDefault("chat.format.operator", "<gold>%player%</gold>: %message%");
+
+        // New: programmatic click/hover strings
+        changed |= checkStringDefault("chat.format.player-hover", "<gray>(Click) Message %player%</gray>");
+        changed |= checkStringDefault("chat.format.click-template", "/msg %playername% ");
 
         changed |= checkStringDefault("chat.msg.self", "<gray>[To <white>%target%</white>]</gray> %message%");
         changed |= checkStringDefault("chat.msg.self-operator", "<gray>[To <gold>%target%</gold>]</gray> %message%");
@@ -179,6 +181,11 @@ public class ConfigValidator {
         changed |= checkStringDefault("chat.togglechat.reminder", "<red>You have chat disabled. Use /togglechat to enable.</red>");
         changed |= checkStringDefault("chat.togglepm.enabled-message", "<green>Private messages disabled.</green>");
         changed |= checkStringDefault("chat.togglepm.disabled-message", "<green>Private messages enabled.</green>");
+
+        changed |= checkIntDefault("chat.togglechat.cooldown-seconds", 0);
+        changed |= checkStringDefault("chat.togglechat.cooldown-message", "<red>Wait %seconds%s before toggling chat again.</red>");
+        changed |= checkIntDefault("chat.togglepm.cooldown-seconds", 0);
+        changed |= checkStringDefault("chat.togglepm.cooldown-message", "<red>Wait %seconds%s before toggling PMs again.</red>");
 
         changed |= checkBooleanDefault("chat.cooldown.enabled");
         changed |= checkDoubleDefault("chat.cooldown.seconds", 3.0);
@@ -200,12 +207,12 @@ public class ConfigValidator {
         changed |= checkIntDefault("helpme.cooldown-seconds", 60);
         changed |= checkIntDefault("helpme.cooldown-no-ops-online-seconds", 10);
         changed |= checkStringDefault("helpme.only-player-message", "<red>Only players can use this command.</red>");
-        changed |= checkStringDefault("helpme.disabled-message", "<red>This command is currently disabled.</red>");
-        changed |= checkStringDefault("helpme.default-message", "Player needs help.");
-        changed |= checkStringDefault("helpme.broadcast", "<gold>[Help]</gold> <white>%player%</white>: %message%");
+        changed |= checkStringDefault("helpme.disabled-message", "<red>This feature is currently disabled.</red>");
+        changed |= checkStringDefault("helpme.default-message", "needs help.");
+        changed |= checkStringDefault("helpme.broadcast", "<gold>Help Request:</gold> <white>%player%</white> %message%");
         changed |= checkStringDefault("helpme.ack-message", "<green>Operators have been notified.</green>");
         changed |= checkStringDefault("helpme.no-operators", "<yellow>No operators are online.</yellow>");
-        changed |= checkStringDefault("helpme.cooldown-message", "<red>Wait %seconds%s before using this again.</red>");
+        changed |= checkStringDefault("helpme.cooldown-message", "<red>You must wait %seconds%s before using this again.</red>");
 
         if (changed) {
             plugin.saveConfig();
@@ -213,9 +220,9 @@ public class ConfigValidator {
         }
     }
 
+    // ---- helpers (unchanged) ----
     private boolean migrateToggleKeys(String base) {
         boolean mutated = false;
-
         String onVal = config.getString(base + ".on");
         if (onVal == null) onVal = config.getString(base + ".true");
         String offVal = config.getString(base + ".off");
@@ -245,14 +252,13 @@ public class ConfigValidator {
             config.set(base + ".false", null);
             mutated = true;
         }
-
         return mutated;
     }
 
     private boolean checkBooleanDefault(String path) {
         if (!config.contains(path) || !(config.get(path) instanceof Boolean)) {
             config.set(path, true);
-            plugin.getLogger().warning(PREFIX + "Invalid or missing boolean at '" + path + "'. Setting default: " + true);
+            plugin.getLogger().warning(PREFIX + "Invalid or missing boolean at '" + path + "'. Setting default: true");
             return true;
         }
         return false;

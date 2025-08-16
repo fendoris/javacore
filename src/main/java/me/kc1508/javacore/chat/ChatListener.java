@@ -2,7 +2,8 @@ package me.kc1508.javacore.chat;
 
 import me.kc1508.javacore.FendorisPlugin;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import org.bukkit.Bukkit;
@@ -15,7 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 public final class ChatListener implements Listener {
     private final FendorisPlugin plugin;
     private final ChatService chat;
-    private final MiniMessage mini = MiniMessage.miniMessage();
 
     public ChatListener(FendorisPlugin plugin, ChatService chat) {
         this.plugin = plugin;
@@ -39,7 +39,7 @@ public final class ChatListener implements Listener {
             event.setCancelled(true);
             String reminder = plugin.getConfig().getString("chat.togglechat.reminder");
             if (reminder != null && !reminder.isBlank()) {
-                sender.sendMessage(mini.deserialize(reminder));
+                sender.sendMessage(plugin.getMiniMessage().deserialize(reminder));
             }
             return;
         }
@@ -51,7 +51,7 @@ public final class ChatListener implements Listener {
             if (msg != null && !msg.isBlank()) {
                 String secondsPart = remain < 1.0 ? "less than 1" : String.valueOf((int) Math.ceil(remain));
                 msg = msg.replace("%seconds%", secondsPart).replace("{seconds}", secondsPart).replace("%s", "s");
-                sender.sendMessage(mini.deserialize(msg));
+                sender.sendMessage(plugin.getMiniMessage().deserialize(msg));
             }
             event.setCancelled(true);
             return;
@@ -65,11 +65,24 @@ public final class ChatListener implements Listener {
         final boolean senderIsOp = sender.hasPermission("fendoris.operator");
         final String visibleText = senderIsOp ? rawMsg : ChatFilters.filter(plugin, rawMsg, sender.getName());
 
+        // Clickable/hoverable player name from config (no fallbacks here; ConfigValidator ensures presence)
+        final String playerName = sender.getName();
+        final String hoverTpl = plugin.getConfig().getString("chat.format.player-hover");
+        final String clickTpl = plugin.getConfig().getString("chat.format.click-template");
+
+        assert hoverTpl != null;
+        final Component hoverText = plugin.getMiniMessage().deserialize(hoverTpl.replace("%player%", playerName).replace("{player}", playerName).replace("%playername%", playerName).replace("{playername}", playerName));
+        assert clickTpl != null;
+        final String cmd = clickTpl.replace("%playername%", playerName).replace("{playername}", playerName);
+
+        final Component nameComponent = Component.text(playerName).hoverEvent(HoverEvent.showText(hoverText)).clickEvent(ClickEvent.suggestCommand(cmd));
+
+        // Template by permission
         final String key = senderIsOp ? "chat.format.operator" : "chat.format.global";
         final String template = plugin.getConfig().getString(key);
 
-        // Safe render: name as component, message UNPARSED; also supports %playername% in attributes
-        event.renderer((source, displayName, message, viewer) -> SafeMini.renderPlayerMessage(mini, template, Component.text(source.getName()), source.getName(), visibleText));
+        // Safe render: name as component, raw name for %playername%, message UNPARSED
+        event.renderer((source, displayName, message, viewer) -> SafeMini.renderPlayerMessage(plugin.getMiniMessage(), template, nameComponent, source.getName(), visibleText));
 
         // Mentions sound
         if (plugin.getConfig().getBoolean("chat.mention-sound-enabled")) {

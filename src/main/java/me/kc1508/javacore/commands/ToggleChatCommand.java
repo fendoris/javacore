@@ -7,24 +7,42 @@ import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ToggleChatCommand implements CommandExecutor, TabCompleter {
-
     private final FendorisPlugin plugin;
     private final ChatService chat;
-    private final MiniMessage mini;
+    private final MiniMessage mini = MiniMessage.miniMessage();
+
+    // per-player cooldown
+    private final Map<UUID, Long> lastToggle = new HashMap<>();
 
     public ToggleChatCommand(FendorisPlugin plugin, ChatService chat) {
         this.plugin = plugin;
         this.chat = chat;
-        this.mini = plugin.getMiniMessage();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!(sender instanceof Player p)) return true;
+
+        int cd = Math.max(0, plugin.getConfig().getInt("chat.togglechat.cooldown-seconds", 0));
+        if (cd > 0) {
+            long now = System.currentTimeMillis();
+            long next = lastToggle.getOrDefault(p.getUniqueId(), 0L) + cd * 1000L;
+            if (now < next) {
+                long remain = (long) Math.ceil((next - now) / 1000.0);
+                String raw = plugin.getConfig().getString("chat.togglechat.cooldown-message");
+                if (raw != null && !raw.isBlank()) {
+                    raw = raw.replace("%seconds%", Long.toString(remain)).replace("{seconds}", Long.toString(remain)).replace("%s", "s");
+                    p.sendMessage(mini.deserialize(raw));
+                }
+                return true;
+            }
+            lastToggle.put(p.getUniqueId(), now);
+        }
 
         boolean nowDisabled = chat.toggleChat(p.getUniqueId());
         String key = nowDisabled ? "chat.togglechat.enabled-message" : "chat.togglechat.disabled-message";
@@ -34,7 +52,7 @@ public class ToggleChatCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
-        return Collections.emptyList();
+    public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String @NotNull [] args) {
+        return java.util.Collections.emptyList();
     }
 }
