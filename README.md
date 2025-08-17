@@ -12,12 +12,18 @@ Designed as a comprehensive all-in-one plugin to provide every essential feature
 
 *Unchecked means Work in Progress or Planned*
 
-#### Systems
+#### Features
+- [X] Global Chat
+	- [X] Chat Formatting
+	- [X] Private Messages
+	- [X] Toggle Private Messages
+	- [X] ToggleChat (per-player)
+	- [X] Profanity and URL Filter
+	- [X] Mention Sound for Username
 - [X] Combat (TogglePvP)
 - [X] Reload Plugin Command
-- [ ] More..
-
-#### Features
+- [X] Customizable Tablist with Color
+- [X] Optional Session Code Generator
 - [X]  Server List Message
 	- [X] Show IP Pinging
 - [X] Join-Leave Messages
@@ -25,8 +31,15 @@ Designed as a comprehensive all-in-one plugin to provide every essential feature
 	- [X] With Operator-Specific Support
 - [X] Death Message Prefix and Color
 - [X] Broadcast Plugin Command Usage to Operators
-- [ ] More.. 
-
+- [X] Allowed Commands List
+- [X] Spawn Command/Setter
+	- [X] Sound and Effects
+	- [X] Directional Support
+- [X] Holograms
+	- [X] Transparency, Color, etc
+	- [X] Edit in-game or in Config
+	- [X] Teleportation to Operator
+- [X] Helpme Command
 
 ### Config
 
