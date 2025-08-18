@@ -6,7 +6,7 @@
 
     <groupId>me.kc1508</groupId>
     <artifactId>javacore</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>javacore</name>
