@@ -126,6 +126,14 @@ public class SpawnWaypointService {
             try {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "waypoint modify " + uuid + " color " + desiredColor);
             } catch (Throwable ignored) { }
+
+            // Apply style if configured (e.g., "bowtie")
+            String desiredStyle = plugin.getConfig().getString("spawn-waypoint.style", "bowtie");
+            if (desiredStyle != null && !desiredStyle.isBlank()) {
+                try {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "waypoint modify " + uuid + " style set " + desiredStyle);
+                } catch (Throwable ignored) { }
+            }
         }, 10L);
 
         plugin.getLogger().info("[SpawnWaypoint] Spawned at " + spawned.getWorld().getName() + " [" + spawnLoc.getBlockX() + "," + spawnLoc.getBlockY() + "," + spawnLoc.getBlockZ() + "]");

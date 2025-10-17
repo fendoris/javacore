@@ -199,6 +199,7 @@ spawn:
 spawn-waypoint:
   enabled: true
   color: gray
+  style: bowtie
 
 # ---------------------------------------------------------
 # Home / SetHome

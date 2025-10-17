@@ -74,6 +74,7 @@ public class ConfigValidator {
         // --- Spawn Waypoint ---
         changed |= checkBooleanDefault("spawn-waypoint.enabled");
         changed |= checkStringDefault("spawn-waypoint.color", "gray");
+        changed |= checkStringDefault("spawn-waypoint.style", "bowtie");
 
         // --- Spawn ---
         changed |= checkBooleanDefault("spawn.enabled");
