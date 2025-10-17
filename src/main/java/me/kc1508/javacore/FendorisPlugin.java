@@ -4,6 +4,7 @@ import me.kc1508.javacore.commands.*;
 import me.kc1508.javacore.listeners.*;
 import me.kc1508.javacore.hologram.*;
 import me.kc1508.javacore.chat.*; // <- chat service + listener + commands
+import me.kc1508.javacore.spawn.SpawnWaypointService;
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
@@ -35,6 +36,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
     private HologramManager hologramManager;
     private StorageManager storageManager;
+    private SpawnWaypointService spawnWaypointService;
 
     public HologramManager getHologramManager() {
         return hologramManager;
@@ -42,6 +44,10 @@ public final class FendorisPlugin extends JavaPlugin {
 
     public StorageManager getStorageManager() {
         return storageManager;
+    }
+
+    public SpawnWaypointService getSpawnWaypointService() {
+        return spawnWaypointService;
     }
 
     @Override
@@ -141,6 +147,10 @@ public final class FendorisPlugin extends JavaPlugin {
         if (getConfig().getBoolean("tablist-enabled", false)) {
             tabListManager.start();
         }
+
+        // Spawn Waypoint: try now (will self-defer until worlds are loaded)
+        spawnWaypointService = new SpawnWaypointService(this);
+        spawnWaypointService.enable();
     }
 
     @Override
@@ -152,6 +162,11 @@ public final class FendorisPlugin extends JavaPlugin {
         if (hologramManager != null) {
             int removed = hologramManager.purgeAllTagged();
             getLogger().info("[Hologram] Purged " + removed + " TextDisplay(s).");
+        }
+
+        // remove spawn waypoint to avoid leaving leftovers
+        if (spawnWaypointService != null) {
+            spawnWaypointService.disable();
         }
     }
 

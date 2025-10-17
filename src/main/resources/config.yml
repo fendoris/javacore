@@ -193,6 +193,14 @@ spawn:
   set-success: "<green>Spawn location saved to config.<reset>"
 
 # ---------------------------------------------------------
+# Spawn Waypoint (ArmorStand marker at world spawn)
+# ---------------------------------------------------------
+
+spawn-waypoint:
+  enabled: true
+  color: gray
+
+# ---------------------------------------------------------
 # Home / SetHome
 # ---------------------------------------------------------
 

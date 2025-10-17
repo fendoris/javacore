@@ -50,6 +50,11 @@ public class ReloadCommand implements CommandExecutor {
         me.kc1508.javacore.hologram.HologramManager hm = plugin.getHologramManager();
         if (hm != null) hm.reload();
 
+        // Spawn Waypoint: purge + respawn if enabled
+        if (plugin.getSpawnWaypointService() != null) {
+            plugin.getSpawnWaypointService().reload();
+        }
+
         // Reload listeners that need it
         allowedCommandListener.reloadBlockedCommands();
 

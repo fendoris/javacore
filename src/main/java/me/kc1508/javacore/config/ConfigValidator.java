@@ -71,6 +71,10 @@ public class ConfigValidator {
         changed |= checkStringDefault("reload.reload-success", "<gold>Config reloaded.</gold>");
         changed |= checkStringDefault("reload.reload-broadcast", "<gray>[<gold>Operator</gold>: <white>%player%</white> reloaded the plugin]</gray>");
 
+        // --- Spawn Waypoint ---
+        changed |= checkBooleanDefault("spawn-waypoint.enabled");
+        changed |= checkStringDefault("spawn-waypoint.color", "gray");
+
         // --- Spawn ---
         changed |= checkBooleanDefault("spawn.enabled");
         changed |= checkStringDefault("spawn.location-world", "world");
