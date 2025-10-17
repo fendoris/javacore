@@ -128,6 +128,8 @@ allowed-commands:
   - pvp
   - session
   - spawn
+  - home
+  - sethome
   - fendorisreload
   - message
   - msg
@@ -183,6 +185,32 @@ spawn:
   operator-sent-message: "<green>Sent %player% to spawn.<reset>"
 
   set-success: "<green>Spawn location saved to config.<reset>"
+
+# ---------------------------------------------------------
+# Home / SetHome
+# ---------------------------------------------------------
+
+home:
+  cooldown-seconds: 60
+  only-player-message: "<red>Only players can use this command.<reset>"
+  usage-message: "<red>Usage: /home<reset>"
+  cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
+  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /home again.<reset>"
+  teleport-delay-seconds: 5 # -1 to disable delay
+
+  # Action bar messages
+  teleport-about-to: "<gray>Preparing to teleport home...</gray>"
+  teleport-in-progress: "<gray>Teleporting...</gray>"
+  teleport-success: "<green>Teleported.</green>"
+  teleport-already-in-progress-message: "<red>You are already teleporting home!<reset>"
+
+sethome:
+  cooldown-seconds: 60
+  only-player-message: "<red>Only players can use this command.<reset>"
+  usage-message: "<red>Usage: /sethome<reset>"
+  cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
+  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /sethome again.<reset>"
+  set-success: "<green>Home saved.<reset>"
 
 # ---------------------------------------------------------
 # Holograms

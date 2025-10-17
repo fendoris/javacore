@@ -54,3 +54,9 @@ commands:
   ineedhelp:
     description: Send a help request to online operators.
     usage: /ineedhelp [message]
+  home:
+    description: Teleport to your home (or spawn if none)
+    usage: "/home"
+  sethome:
+    description: Set your home location
+    usage: "/sethome"

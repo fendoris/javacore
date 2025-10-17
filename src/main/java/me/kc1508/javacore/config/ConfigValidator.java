@@ -153,6 +153,25 @@ public class ConfigValidator {
         changed |= checkStringDefault("hologram.messages.set.rotation.fail", "<red>Failed to set rotation for <white>#%id%</white>.</red>");
         changed |= checkStringDefault("hologram.messages.cleanup.removed", "<green>Removed <yellow>%count%</yellow> hologram display(s).</green>");
 
+        // --- Home / SetHome ---
+        changed |= checkIntDefault("home.cooldown-seconds", 60);
+        changed |= checkStringDefault("home.only-player-message", "<red>Only players can use this command.</red>");
+        changed |= checkStringDefault("home.usage-message", "<red>Usage: /home</red>");
+        changed |= checkStringDefault("home.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /home again.</red>");
+        changed |= checkStringDefault("home.cooldown-message", "<red>You must wait %seconds%s to use /home again.</red>");
+        changed |= checkIntDefault("home.teleport-delay-seconds", 5);
+        changed |= checkStringDefault("home.teleport-about-to", "<gray>Preparing to teleport home...</gray>");
+        changed |= checkStringDefault("home.teleport-in-progress", "<gray>Teleporting...</gray>");
+        changed |= checkStringDefault("home.teleport-success", "<green>Teleported.</green>");
+        changed |= checkStringDefault("home.teleport-already-in-progress-message", "<red>You are already teleporting home!</red>");
+
+        changed |= checkIntDefault("sethome.cooldown-seconds", 60);
+        changed |= checkStringDefault("sethome.only-player-message", "<red>Only players can use this command.</red>");
+        changed |= checkStringDefault("sethome.usage-message", "<red>Usage: /sethome</red>");
+        changed |= checkStringDefault("sethome.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /sethome again.</red>");
+        changed |= checkStringDefault("sethome.cooldown-message", "<red>You must wait %seconds%s to use /sethome again.</red>");
+        changed |= checkStringDefault("sethome.set-success", "<green>Home saved.</green>");
+
         // --- Chat ---
         changed |= migrateToggleKeys("chat.togglechat");
         changed |= migrateToggleKeys("chat.togglepm");

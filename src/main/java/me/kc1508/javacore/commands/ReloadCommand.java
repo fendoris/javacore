@@ -10,20 +10,24 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import me.kc1508.javacore.hologram.*;
+import me.kc1508.javacore.storage.StorageManager;
 
 public class ReloadCommand implements CommandExecutor {
 
     private final FendorisPlugin plugin;
     private final AllowedCommandListener allowedCommandListener;
     private final MiniMessage miniMessage;
+    private final StorageManager storageManager;
 
     public ReloadCommand(FendorisPlugin plugin,
                          PlayerJoinQuitListener listener, // still passed for future use
                          AllowedCommandListener allowedCommandListener,
-                         ServerPingListener serverPingListener) {
+                         ServerPingListener serverPingListener,
+                         StorageManager storageManager) {
         this.plugin = plugin;
         this.allowedCommandListener = allowedCommandListener;
         this.miniMessage = MiniMessage.miniMessage();
+        this.storageManager = storageManager;
     }
 
     @Override
@@ -48,6 +52,9 @@ public class ReloadCommand implements CommandExecutor {
 
         // Reload listeners that need it
         allowedCommandListener.reloadBlockedCommands();
+
+        // Reload storage.yml
+        if (storageManager != null) storageManager.reload();
 
         // Notify sender
         sendMiniMessage(sender, "reload.reload-success", "<gold>Config reloaded.</gold>");

@@ -7,6 +7,7 @@ import me.kc1508.javacore.chat.*; // <- chat service + listener + commands
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
+import me.kc1508.javacore.storage.StorageManager;
 
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,9 +34,14 @@ public final class FendorisPlugin extends JavaPlugin {
     private TabListManager tabListManager;
 
     private HologramManager hologramManager;
+    private StorageManager storageManager;
 
     public HologramManager getHologramManager() {
         return hologramManager;
+    }
+
+    public StorageManager getStorageManager() {
+        return storageManager;
     }
 
     @Override
@@ -56,6 +62,9 @@ public final class FendorisPlugin extends JavaPlugin {
 
         tabListManager = new TabListManager(this);
 
+        // persistent storage (homes, etc)
+        storageManager = new StorageManager(this);
+
         playerListener = new PlayerJoinQuitListener(this);
         getServer().getPluginManager().registerEvents(playerListener, this);
 
@@ -73,7 +82,7 @@ public final class FendorisPlugin extends JavaPlugin {
         serverPingListener = new ServerPingListener(this);
         getServer().getPluginManager().registerEvents(serverPingListener, this);
 
-        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener));
+        Objects.requireNonNull(getCommand("fendorisreload")).setExecutor(new ReloadCommand(this, playerListener, allowedCommandListener, serverPingListener, storageManager));
 
         SessionCommand sessionCommand = new SessionCommand(this);
         getServer().getPluginManager().registerEvents(new SessionListener(sessionCommand), this);
@@ -88,6 +97,13 @@ public final class FendorisPlugin extends JavaPlugin {
 
         SetSpawnCommand setSpawnCommand = new SetSpawnCommand(this);
         Objects.requireNonNull(getCommand("setspawn")).setExecutor(setSpawnCommand);
+
+        // /home and /sethome
+        HomeCommand homeCommand = new HomeCommand(this, storageManager);
+        Objects.requireNonNull(getCommand("home")).setExecutor(homeCommand);
+
+        SetHomeCommand setHomeCommand = new SetHomeCommand(this, storageManager);
+        Objects.requireNonNull(getCommand("sethome")).setExecutor(setHomeCommand);
 
         hologramManager = new HologramManager(this);
         hologramManager.loadFromConfig();
