@@ -72,6 +72,12 @@ system.pvp:
   operator-pvp-toggle-on: "<gray>[<red>Player</red>: <white>%player%</white> toggled their PvP <green>on</green>]</gray>"
 
 # ---------------------------------------------------------
+# Gameplay Tweaks
+# ---------------------------------------------------------
+
+system.prevent-crop-trample: true
+
+# ---------------------------------------------------------
 # Death Messages
 # ---------------------------------------------------------
 

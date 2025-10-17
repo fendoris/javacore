@@ -78,6 +78,7 @@ public final class FendorisPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new PvpListener(this, pvpCommand), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new CropTrampleListener(this), this);
 
         serverPingListener = new ServerPingListener(this);
         getServer().getPluginManager().registerEvents(serverPingListener, this);

@@ -51,6 +51,9 @@ public class ConfigValidator {
         changed |= checkStringDefault("system.pvp.attacker-disabled-message", "<red>You cannot PvP while your PvP is disabled.<reset>");
         changed |= checkStringDefault("system.pvp.victim-disabled-message", "<red>This player has PvP disabled.<reset>");
 
+        // --- Gameplay Tweaks ---
+        changed |= checkBooleanDefault("system.prevent-crop-trample");
+
         // --- Session Codes ---
         changed |= checkBooleanDefault("session.enabled");
         changed |= checkIntDefault("session.code-length", 6);
