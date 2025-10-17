@@ -120,11 +120,27 @@ public class SpawnWaypointService {
                 // Attribute may not exist; ignore
             }
 
-            // Apply configured color using confirmed syntax: waypoint modify <uuid> color <color>
-            String desiredColor = plugin.getConfig().getString("spawn-waypoint.color", "gray");
+            // Apply configured color; accept named color or raw hex.
+            // For hex, use the working syntax: waypoint modify <uuid> color hex <RRGGBB|AARRGGBB>
+            String colorCfg = plugin.getConfig().getString("spawn-waypoint.color", "gray");
             String uuid = spawned.getUniqueId().toString();
             try {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "waypoint modify " + uuid + " color " + desiredColor);
+                String cmd;
+                if (colorCfg != null) {
+                    String c = colorCfg.trim();
+                    // Allow with or without leading '#'
+                    if (c.matches("(?i)^#[0-9a-f]{6}$") || c.matches("(?i)^#[0-9a-f]{8}$")) {
+                        c = c.substring(1);
+                    }
+                    if (c.matches("(?i)^[0-9a-f]{6}$") || c.matches("(?i)^[0-9a-f]{8}$")) {
+                        cmd = "waypoint modify " + uuid + " color hex " + c.toUpperCase();
+                    } else {
+                        cmd = "waypoint modify " + uuid + " color " + c;
+                    }
+                } else {
+                    cmd = "waypoint modify " + uuid + " color gray";
+                }
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
             } catch (Throwable ignored) { }
 
             // Apply style if configured (e.g., "bowtie")

@@ -198,7 +198,8 @@ spawn:
 
 spawn-waypoint:
   enabled: true
-  color: gray
+  color: gray # accepts named colors or raw hex like FF69B4 (you can also use '#FF69B4' if quoted)
+  # For hex values, the plugin sends: /waypoint modify <uuid> color hex <HEX>
   style: bowtie
 
 # ---------------------------------------------------------
