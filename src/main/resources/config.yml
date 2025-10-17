@@ -218,6 +218,20 @@ home:
   teleport-success: "<green>Teleported.</green>"
   teleport-already-in-progress-message: "<red>You are already teleporting home!<reset>"
 
+  # Countdown + cancellation messages (mirrors spawn system)
+  teleport-delay-start-message: "<yellow>Teleporting home in %seconds%s... Don't move!<reset>"
+  teleport-cancelled-message: "<red>Teleport cancelled because you moved.<reset>"
+
+  # Visuals: particles + sound during countdown (mirrors spawn system)
+  teleport-particles-enabled: true
+  teleport-particle-name: "minecraft:portal"
+  teleport-particle-count: 20
+
+  teleport-sound-enabled: true
+  teleport-sound-name: "minecraft:block.note_block.pling"
+  teleport-sound-volume: 1.0
+  teleport-sound-pitch: 1.0
+
 sethome:
   cooldown-seconds: 60
   only-player-message: "<red>Only players can use this command.<reset>"
@@ -225,6 +239,7 @@ sethome:
   cooldown-message: "<red>You must wait %seconds%s before using this again.<reset>"
   cooldown-message-less-than-1: "<red>You must wait less than 1s to use /sethome again.<reset>"
   set-success: "<green>Home saved.<reset>"
+  disallowed-world-message: "<red>You can't set your home in the Nether or the End.<reset>"
 
 # ---------------------------------------------------------
 # Holograms

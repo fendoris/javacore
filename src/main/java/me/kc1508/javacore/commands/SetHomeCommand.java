@@ -3,6 +3,7 @@ package me.kc1508.javacore.commands;
 import me.kc1508.javacore.FendorisPlugin;
 import me.kc1508.javacore.storage.StorageManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -60,6 +61,13 @@ public class SetHomeCommand implements CommandExecutor {
             }
         }
 
+        // Block setting home in Nether and End
+        World world = player.getWorld();
+        if (world.getEnvironment() == World.Environment.NETHER || world.getEnvironment() == World.Environment.THE_END) {
+            sendChat(player, "sethome.disallowed-world-message");
+            return true;
+        }
+
         storage.setHome(player.getUniqueId(), player.getLocation());
         lastSetHomeTimes.put(player.getUniqueId(), System.currentTimeMillis());
         sendChat(player, "sethome.set-success");
@@ -88,4 +96,3 @@ public class SetHomeCommand implements CommandExecutor {
         }
     }
 }
-

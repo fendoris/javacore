@@ -167,10 +167,22 @@ public class ConfigValidator {
         changed |= checkStringDefault("home.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /home again.</red>");
         changed |= checkStringDefault("home.cooldown-message", "<red>You must wait %seconds%s to use /home again.</red>");
         changed |= checkIntDefault("home.teleport-delay-seconds", 5);
+        // Backward-compatible actionbar strings (deprecated by delay-start/cancelled)
         changed |= checkStringDefault("home.teleport-about-to", "<gray>Preparing to teleport home...</gray>");
         changed |= checkStringDefault("home.teleport-in-progress", "<gray>Teleporting...</gray>");
         changed |= checkStringDefault("home.teleport-success", "<green>Teleported.</green>");
         changed |= checkStringDefault("home.teleport-already-in-progress-message", "<red>You are already teleporting home!</red>");
+
+        // New: mirror spawn options for countdown, sounds and particles
+        changed |= checkStringDefault("home.teleport-delay-start-message", "<yellow>Teleporting home in %seconds%s... Don't move!<reset>");
+        changed |= checkStringDefault("home.teleport-cancelled-message", "<red>Teleport cancelled because you moved.<reset>");
+        changed |= checkBooleanDefault("home.teleport-particles-enabled");
+        changed |= checkStringDefault("home.teleport-particle-name", "minecraft:portal");
+        changed |= checkIntDefault("home.teleport-particle-count", 20);
+        changed |= checkBooleanDefault("home.teleport-sound-enabled");
+        changed |= checkStringDefault("home.teleport-sound-name", "minecraft:block.note_block.pling");
+        changed |= checkDoubleDefault("home.teleport-sound-volume", 1.0);
+        changed |= checkDoubleDefault("home.teleport-sound-pitch", 1.0);
 
         changed |= checkIntDefault("sethome.cooldown-seconds", 60);
         changed |= checkStringDefault("sethome.only-player-message", "<red>Only players can use this command.</red>");
@@ -178,6 +190,7 @@ public class ConfigValidator {
         changed |= checkStringDefault("sethome.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /sethome again.</red>");
         changed |= checkStringDefault("sethome.cooldown-message", "<red>You must wait %seconds%s to use /sethome again.</red>");
         changed |= checkStringDefault("sethome.set-success", "<green>Home saved.</green>");
+        changed |= checkStringDefault("sethome.disallowed-world-message", "<red>You can't set your home in the Nether or the End.</red>");
 
         // --- Chat ---
         changed |= migrateToggleKeys("chat.togglechat");

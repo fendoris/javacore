@@ -71,7 +71,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
             int delaySeconds = plugin.getConfig().getInt("spawn.teleport-delay-seconds", 0);
             if (delaySeconds <= 0 || player.hasPermission("fendoris.operator")) {
                 teleportToSpawn(player);
-                sendMessage(player, "spawn.teleport-success-message");
+                sendHotbar(player, "spawn.teleport-success-message");
                 // set cooldown only after success
                 lastSpawnTimes.put(player.getUniqueId(), System.currentTimeMillis());
                 return true;
@@ -79,7 +79,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
 
             // If already teleporting, do not restart
             if (teleportTasks.containsKey(player.getUniqueId())) {
-                sendMessage(player, "spawn.teleport-already-in-progress-message");
+                sendHotbar(player, "spawn.teleport-already-in-progress-message");
                 return true;
             }
 
@@ -118,7 +118,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
         UUID uuid = player.getUniqueId();
         teleportStartLocation.put(uuid, player.getLocation().clone());
 
-        sendMessage(player, "spawn.teleport-delay-start-message", "%seconds%", String.valueOf(delaySeconds));
+        sendHotbar(player, "spawn.teleport-delay-start-message", "%seconds%", String.valueOf(delaySeconds));
 
         int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
             int secondsLeft = delaySeconds;
@@ -152,7 +152,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
                 secondsLeft--;
                 if (secondsLeft <= 0) {
                     teleportToSpawn(player);
-                    sendMessage(player, "spawn.teleport-success-message");
+                    sendHotbar(player, "spawn.teleport-success-message");
                     lastSpawnTimes.put(uuid, System.currentTimeMillis()); // set cooldown only after success
                     cancelTeleport(uuid);
                 }
@@ -174,7 +174,7 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
         if (from.getBlockX() != to.getBlockX()
                 || from.getBlockY() != to.getBlockY()
                 || from.getBlockZ() != to.getBlockZ()) {
-            sendMessage(player, "spawn.teleport-cancelled-message");
+            sendHotbar(player, "spawn.teleport-cancelled-message");
             cancelTeleport(uuid);
         }
     }
@@ -236,5 +236,27 @@ public class SpawnCommand implements CommandExecutor, TabCompleter, Listener {
             return matches;
         }
         return Collections.emptyList();
+    }
+
+    private void sendHotbar(Player player, String key, String... replacements) {
+        String rawMessage = plugin.getConfig().getString(key);
+        if (rawMessage == null || rawMessage.isBlank()) {
+            player.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Spawn] Missing config key: " + key);
+            return;
+        }
+
+        if (replacements.length % 2 == 0) {
+            for (int i = 0; i < replacements.length; i += 2) {
+                rawMessage = rawMessage.replace(replacements[i], replacements[i + 1]);
+            }
+        }
+
+        try {
+            player.sendActionBar(miniMessage.deserialize(rawMessage));
+        } catch (Exception e) {
+            player.sendMessage(FALLBACK);
+            plugin.getLogger().warning("[Spawn] Invalid message format for key: " + key + " -> " + e.getMessage());
+        }
     }
 }
