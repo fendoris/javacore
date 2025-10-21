@@ -254,6 +254,12 @@ public class ConfigValidator {
         changed |= checkStringDefault("helpme.no-operators", "<yellow>No operators are online.</yellow>");
         changed |= checkStringDefault("helpme.cooldown-message", "<red>You must wait %seconds%s before using this again.</red>");
 
+        // --- Map (/map) ---
+        changed |= checkStringDefault("map.only-player-message", "<red>Only players can use this command.</red>");
+        changed |= checkStringDefault("map.message", "<gold>Map:</gold> <white>Ask an operator to configure this.</white>");
+        changed |= checkStringDefault("map.cooldown-message", "<red>You must wait %seconds%s before using this again.</red>");
+        changed |= checkStringDefault("map.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /map again.</red>");
+
         if (changed) {
             plugin.saveConfig();
             plugin.getLogger().info(PREFIX + "Missing/invalid config values set to defaults and saved.");

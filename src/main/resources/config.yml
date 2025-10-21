@@ -144,6 +144,7 @@ allowed-commands:
   - togglechat
   - togglepm
   - ineedhelp
+  - map
   - plugins
   - version
 
@@ -399,6 +400,16 @@ helpme:
   broadcast: "<gold>Help Request:</gold> <white>%player%</white> %message%"
   ack-message: "<green>Your request has been sent to online operators.</green>"
   no-operators: "<yellow>No operators are online right now. Try again shortly.</yellow>"
+
+# ---------------------------------------------------------
+# Map
+# ---------------------------------------------------------
+
+map:
+  only-player-message: "<red>Only players can use this command.</red>"
+  message: "<gold>Map:</gold> <white>Ask an operator to configure this.</white>"
+  cooldown-message: "<red>You must wait %seconds%s before using this again.</red>"
+  cooldown-message-less-than-1: "<red>You must wait less than 1s to use /map again.</red>"
 
 # ---------------------------------------------------------
 # Storage

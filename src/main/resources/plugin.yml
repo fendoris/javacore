@@ -60,3 +60,6 @@ commands:
   sethome:
     description: Set your home location
     usage: "/sethome"
+  map:
+    description: Show map information
+    usage: "/map"

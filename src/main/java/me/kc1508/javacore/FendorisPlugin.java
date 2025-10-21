@@ -137,6 +137,9 @@ public final class FendorisPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("togglepm")).setExecutor(togglePmCmd);
         Objects.requireNonNull(getCommand("togglepm")).setTabCompleter(togglePmCmd);
 
+        // /map
+        Objects.requireNonNull(getCommand("map")).setExecutor(new MapCommand(this));
+
         // /ineedhelp
         INeedHelpCommand helpCmd = new INeedHelpCommand(this);
         Objects.requireNonNull(getCommand("ineedhelp")).setExecutor(helpCmd);
