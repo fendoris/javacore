@@ -46,6 +46,11 @@ public class ReloadCommand implements CommandExecutor {
         plugin.reloadConfig();
         new me.kc1508.javacore.config.ConfigValidator(plugin).validate();
 
+        // Extended Day feature (enable/disable based on config)
+        if (plugin.getExtendedDayService() != null) {
+            plugin.getExtendedDayService().reload();
+        }
+
         // Holograms: reload from config (despawn + respawn to avoid dupes)
         me.kc1508.javacore.hologram.HologramManager hm = plugin.getHologramManager();
         if (hm != null) hm.reload();

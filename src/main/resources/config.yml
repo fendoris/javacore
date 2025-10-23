@@ -77,6 +77,10 @@ system.pvp:
 
 system.prevent-crop-trample: true
 
+# Extend full day-night cycle to ~60 minutes (vanilla is ~20).
+# Applies to all worlds while enabled.
+system.extended-day: false
+
 # ---------------------------------------------------------
 # Death Messages
 # ---------------------------------------------------------

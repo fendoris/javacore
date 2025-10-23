@@ -5,6 +5,7 @@ import me.kc1508.javacore.listeners.*;
 import me.kc1508.javacore.hologram.*;
 import me.kc1508.javacore.chat.*; // <- chat service + listener + commands
 import me.kc1508.javacore.spawn.SpawnWaypointService;
+import me.kc1508.javacore.time.ExtendedDayService;
 
 import me.kc1508.javacore.config.ConfigValidator;
 import me.kc1508.javacore.tablist.TabListManager;
@@ -37,6 +38,7 @@ public final class FendorisPlugin extends JavaPlugin {
     private HologramManager hologramManager;
     private StorageManager storageManager;
     private SpawnWaypointService spawnWaypointService;
+    private ExtendedDayService extendedDayService;
 
     public HologramManager getHologramManager() {
         return hologramManager;
@@ -154,6 +156,11 @@ public final class FendorisPlugin extends JavaPlugin {
         // Spawn Waypoint: try now (will self-defer until worlds are loaded)
         spawnWaypointService = new SpawnWaypointService(this);
         spawnWaypointService.enable();
+
+        // Extended Day (60-minute cycle) — controlled by config on reload/enable
+        extendedDayService = new ExtendedDayService(this);
+        getServer().getPluginManager().registerEvents(extendedDayService, this);
+        extendedDayService.reload();
     }
 
     @Override
@@ -170,6 +177,11 @@ public final class FendorisPlugin extends JavaPlugin {
         // remove spawn waypoint to avoid leaving leftovers
         if (spawnWaypointService != null) {
             spawnWaypointService.disable();
+        }
+
+        // stop extended day and restore gamerules
+        if (extendedDayService != null) {
+            extendedDayService.disable();
         }
     }
 
@@ -231,6 +243,10 @@ public final class FendorisPlugin extends JavaPlugin {
 
     public TabListManager getTabListManager() {
         return tabListManager;
+    }
+
+    public ExtendedDayService getExtendedDayService() {
+        return extendedDayService;
     }
 
     public void broadcastToOPsExceptSender(String senderName, String messageKey, String... replacements) {

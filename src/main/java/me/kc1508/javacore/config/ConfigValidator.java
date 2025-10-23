@@ -53,6 +53,7 @@ public class ConfigValidator {
 
         // --- Gameplay Tweaks ---
         changed |= checkBooleanDefault("system.prevent-crop-trample");
+        changed |= checkBooleanDefault("system.extended-day", false);
 
         // --- Session Codes ---
         changed |= checkBooleanDefault("session.enabled");
@@ -305,6 +306,15 @@ public class ConfigValidator {
         if (!config.contains(path) || !(config.get(path) instanceof Boolean)) {
             config.set(path, true);
             plugin.getLogger().warning(PREFIX + "Invalid or missing boolean at '" + path + "'. Setting default: true");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean checkBooleanDefault(String path, boolean defaultValue) {
+        if (!config.contains(path) || !(config.get(path) instanceof Boolean)) {
+            config.set(path, defaultValue);
+            plugin.getLogger().warning(PREFIX + "Invalid or missing boolean at '" + path + "'. Setting default: " + defaultValue);
             return true;
         }
         return false;
