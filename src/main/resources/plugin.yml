@@ -63,3 +63,6 @@ commands:
   map:
     description: Show map information
     usage: "/map"
+  discord:
+    description: Show Discord information
+    usage: "/discord"

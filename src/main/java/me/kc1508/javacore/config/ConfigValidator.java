@@ -261,6 +261,12 @@ public class ConfigValidator {
         changed |= checkStringDefault("map.cooldown-message", "<red>You must wait %seconds%s before using this again.</red>");
         changed |= checkStringDefault("map.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /map again.</red>");
 
+        // --- Discord (/discord) ---
+        changed |= checkStringDefault("discord.only-player-message", "<red>Only players can use this command.</red>");
+        changed |= checkStringDefault("discord.message", "<gold>Discord:</gold> <white>Ask an operator to configure this.</white>");
+        changed |= checkStringDefault("discord.cooldown-message", "<red>You must wait %seconds%s before using this again.</red>");
+        changed |= checkStringDefault("discord.cooldown-message-less-than-1", "<red>You must wait less than 1s to use /discord again.</red>");
+
         if (changed) {
             plugin.saveConfig();
             plugin.getLogger().info(PREFIX + "Missing/invalid config values set to defaults and saved.");

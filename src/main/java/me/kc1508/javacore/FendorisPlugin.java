@@ -142,6 +142,9 @@ public final class FendorisPlugin extends JavaPlugin {
         // /map
         Objects.requireNonNull(getCommand("map")).setExecutor(new MapCommand(this));
 
+        // /discord
+        Objects.requireNonNull(getCommand("discord")).setExecutor(new DiscordCommand(this));
+
         // /ineedhelp
         INeedHelpCommand helpCmd = new INeedHelpCommand(this);
         Objects.requireNonNull(getCommand("ineedhelp")).setExecutor(helpCmd);
