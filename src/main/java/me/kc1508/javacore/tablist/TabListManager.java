@@ -18,9 +18,12 @@ public class TabListManager {
     private final FendorisPlugin plugin;
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private BukkitTask task;
+    private BukkitTask tpsSamplerTask;
     private final Map<Integer, String> onlineCountSubstitutions = new HashMap<>();
     private final Map<UUID, String> sessionCodes = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
+    private final Deque<Long> tickTimesNanos = new ArrayDeque<>();
+    private static final long TEN_SECONDS_NANOS = 10_000_000_000L;
 
     private Team operatorTeam;
     private Team defaultTeam;
@@ -116,11 +119,20 @@ public class TabListManager {
         updateAllPlayers();
 
         task = Bukkit.getScheduler().runTaskTimer(plugin, this::updateAllPlayers, interval * 20L, interval * 20L);
+
+        // Start a 1-tick sampler to maintain a 10s TPS window
+        if (tpsSamplerTask == null) {
+            tpsSamplerTask = Bukkit.getScheduler().runTaskTimer(plugin, this::recordTickSample, 0L, 1L);
+        }
     }
 
     public void stop() {
         if (task != null) {
             task.cancel();
+        }
+        if (tpsSamplerTask != null) {
+            tpsSamplerTask.cancel();
+            tpsSamplerTask = null;
         }
     }
 
@@ -139,7 +151,7 @@ public class TabListManager {
         String headerRaw = plugin.getConfig().getString("tablist-header", "");
         String footerRaw = plugin.getConfig().getString("tablist-footer", "");
 
-        String tps = formatTps(plugin.getServer().getTPS()[0]);
+        String tps = formatTps(getTpsLast10s());
 
         String header = replacePlaceholders(headerRaw, player, tps);
         String footer = replacePlaceholders(footerRaw, player, tps);
@@ -185,7 +197,45 @@ public class TabListManager {
     }
 
     private String formatTps(double rawTps) {
-        return (rawTps >= 20.0) ? "20" : String.format("%.2f", rawTps);
+        if (rawTps >= 19.95) return "20";
+        return String.format("%.2f", rawTps);
+    }
+
+    private void recordTickSample() {
+        long now = System.nanoTime();
+        tickTimesNanos.addLast(now);
+        // Evict samples older than 10 seconds
+        while (!tickTimesNanos.isEmpty() && (now - tickTimesNanos.peekFirst()) > TEN_SECONDS_NANOS) {
+            tickTimesNanos.removeFirst();
+        }
+    }
+
+    private double getTpsLast10s() {
+        // Ensure the deque is trimmed relative to current time
+        long now = System.nanoTime();
+        while (!tickTimesNanos.isEmpty() && (now - tickTimesNanos.peekFirst()) > TEN_SECONDS_NANOS) {
+            tickTimesNanos.removeFirst();
+        }
+
+        int samples = tickTimesNanos.size();
+        if (samples <= 1) {
+            // Fallback to Paper's 1m TPS if we don't have enough samples yet
+            try {
+                double[] arr = plugin.getServer().getTPS();
+                return (arr != null && arr.length > 0) ? Math.min(20.0, arr[0]) : 20.0;
+            } catch (Throwable ignored) {
+                return 20.0;
+            }
+        }
+
+        long oldest = tickTimesNanos.peekFirst();
+        double windowSeconds = (now - oldest) / 1_000_000_000.0;
+        // Avoid division by zero and keep within [0.05s, 10s]
+        windowSeconds = Math.max(0.05, Math.min(10.0, windowSeconds));
+
+        double tps = samples / windowSeconds;
+        if (tps > 20.0) tps = 20.0;
+        return tps;
     }
 
     private int getOnlineCount() {
