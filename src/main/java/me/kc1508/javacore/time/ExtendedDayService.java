@@ -9,6 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.event.player.PlayerBedEnterEvent;
+import org.bukkit.event.player.PlayerBedLeaveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.GameMode;
 import java.lang.reflect.Method;
 
 import java.util.HashMap;
@@ -28,6 +32,8 @@ public class ExtendedDayService implements Listener {
 
     // Track original gamerule values for worlds we changed so we can restore exactly
     private final Map<UUID, Boolean> originalDaylightCycle = new HashMap<>();
+    private final Map<UUID, BukkitTask> pendingNightSkips = new HashMap<>();
+    private static final long SLEEP_SKIP_DELAY_TICKS = 100L; // ~5 seconds, mimics vanilla feel
 
     public ExtendedDayService(FendorisPlugin plugin) {
         this.plugin = plugin;
@@ -164,5 +170,97 @@ public class ExtendedDayService implements Listener {
         } catch (Throwable ignored) {
         }
         return 20.0; // assume healthy if unavailable
+    }
+
+    // ---- Sleep handling to skip night while DO_DAYLIGHT_CYCLE is false ----
+    @EventHandler(ignoreCancelled = true)
+    public void onBedEnter(PlayerBedEnterEvent event) {
+        if (!enabled) return;
+        World world = event.getPlayer().getWorld();
+        if (world.getEnvironment() != Environment.NORMAL) return;
+        if (event.getBedEnterResult() != PlayerBedEnterEvent.BedEnterResult.OK) return;
+
+        // Re-evaluate after the sleeping state is applied this tick
+        Bukkit.getScheduler().runTask(plugin, () -> scheduleNightSkipIfReady(world));
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onBedLeave(PlayerBedLeaveEvent event) {
+        if (!enabled) return;
+        World world = event.getPlayer().getWorld();
+        if (world.getEnvironment() != Environment.NORMAL) return;
+        cancelPendingNightSkip(world);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onQuit(PlayerQuitEvent event) {
+        if (!enabled) return;
+        World world = event.getPlayer().getWorld();
+        if (world.getEnvironment() != Environment.NORMAL) return;
+        // Player leaving can break the threshold; cancel if we had scheduled
+        cancelPendingNightSkip(world);
+    }
+
+    private void scheduleNightSkipIfReady(World world) {
+        if (!isNightOrThundering(world)) return;
+
+        SleepCounts counts = computeSleepCounts(world);
+        if (counts.eligible == 0) return;
+
+        int required = requiredSleepers(world, counts.eligible);
+        if (counts.sleeping < required) {
+            cancelPendingNightSkip(world);
+            return;
+        }
+
+        // If already pending, do nothing; otherwise schedule with vanilla-like delay
+        pendingNightSkips.computeIfAbsent(world.getUID(), k ->
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                pendingNightSkips.remove(world.getUID());
+                // Re-check conditions at execution time
+                if (!isNightOrThundering(world)) return;
+                SleepCounts now = computeSleepCounts(world);
+                if (now.eligible == 0) return;
+                if (now.sleeping < requiredSleepers(world, now.eligible)) return;
+
+                long next = ((world.getFullTime() / 24000L) + 1L) * 24000L + 1000L; // morning
+                world.setFullTime(next);
+                world.setStorm(false);
+                world.setThundering(false);
+            }, SLEEP_SKIP_DELAY_TICKS)
+        );
+    }
+
+    private void cancelPendingNightSkip(World world) {
+        BukkitTask pending = pendingNightSkips.remove(world.getUID());
+        if (pending != null) pending.cancel();
+    }
+
+    private boolean isNightOrThundering(World world) {
+        long t = world.getTime() % 24000L;
+        boolean isNight = t >= 12541L && t <= 23458L; // vanilla-ish window
+        return isNight || world.isThundering();
+    }
+
+    private int requiredSleepers(World world, int eligible) {
+        Integer perc = world.getGameRuleValue(GameRule.PLAYERS_SLEEPING_PERCENTAGE);
+        int percentage = (perc != null) ? Math.max(0, Math.min(100, perc)) : 100;
+        int required = (int) Math.ceil((percentage / 100.0) * eligible);
+        if (required <= 0) required = 1;
+        return required;
+    }
+
+    private record SleepCounts(int eligible, int sleeping) {}
+
+    private SleepCounts computeSleepCounts(World world) {
+        int eligible = 0;
+        int sleeping = 0;
+        for (var p : world.getPlayers()) {
+            if (p.getGameMode() == GameMode.SPECTATOR) continue;
+            if (p.isSleepingIgnored()) continue;
+            eligible++;
+            if (p.isSleeping()) sleeping++;
+        }
+        return new SleepCounts(eligible, sleeping);
     }
 }
