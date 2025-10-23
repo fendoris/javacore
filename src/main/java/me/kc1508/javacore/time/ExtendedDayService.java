@@ -102,7 +102,15 @@ public class ExtendedDayService implements Listener {
 
     private void checkTpsAndMaybeSwitch() {
         double tps1m = getTps1m();
-        Mode desired = (tps1m < 20.0) ? Mode.BATCHED : Mode.SMOOTH;
+        Mode desired;
+        if (tps1m < 19.5) {
+            desired = Mode.BATCHED;
+        } else if (tps1m > 19.5) {
+            desired = Mode.SMOOTH;
+        } else {
+            // exactly 19.5 — hold current; if none yet, prefer SMOOTH
+            desired = (currentMode != null) ? currentMode : Mode.SMOOTH;
+        }
         if (desired != currentMode) {
             switchToMode(desired);
         }
